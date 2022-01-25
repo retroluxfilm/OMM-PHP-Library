@@ -21,28 +21,18 @@ This is a PHP Web library to manage remote repositories for the
 ### Composer
 
 To install with [Composer](https://getcomposer.org/), simply require the
-latest version of this package.
+latest version of this package. Install it as a global library in case you only want to use if from the command line
 
 ```bash
 composer global require retrolux/omm-php-library
 ```
 
-If you plan to use the library in your own project, the autoload file from Composer must be loaded early in your project.
-Add the following line before accessing classes part of the library
-
-```php
-require 'vendor/autoload.php';
-```
-
 ## Use Examples
-
 
 ### Command Line
 
 Generates the `Package Download Repository` saved into `downloads/repository.xml` scanning for mod packages in the `download/packages folder`
 
-*(the folder for the OMMTask might vary on your webserver)*
-
 ```bash
-php .config/composer/vendor/retrolux/omm-php-library/src/OMMTask generateFolderRepository "downloads/repository.xml" "Package Download Repository" "downloads/packages"
+OMMTask generateFolderRepository "downloads/repository.xml" "Package Download Repository" "downloads/packages"
 ```
