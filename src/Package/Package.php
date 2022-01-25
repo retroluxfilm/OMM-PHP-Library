@@ -130,7 +130,7 @@ class Package
         }
 
         // add logo image if set
-        if ($this->logoImageData != false) {
+        if (isset($this->logoImageData)) {
             $picture = $xml->createElement("picture", PackageHelper::encodePackageLogo($this->logoImageData));
             $remote->appendChild($picture);
         }
