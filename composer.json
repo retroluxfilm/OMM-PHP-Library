@@ -1,0 +1,33 @@
+{
+  "name": "retrolux/omm_php_library",
+  "description": "Open Mod Manager PHP library for web remote repositories",
+  "minimum-stability": "beta",
+  "license": "GPL-3.0-or-later",
+  "readme": "readme.md",
+  "authors": [
+    {
+      "name": "Alexandre Miguel Maia",
+      "email": "info@retrolux.de",
+      "homepage": "https://retrolux.de"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/retroluxfilm"
+  },
+  "autoload": {
+    "psr-4": {
+      "OMM\\": "src/"
+    }
+  },
+  "require": {
+    "php" : ">=7.4",
+    "ext-dom": "*",
+    "ext-simplexml": "*",
+    "ext-libxml": "*",
+    "ext-fileinfo": "*",
+    "ext-mbstring": "*",
+    "ext-zip": "*",
+    "ext-zlib": "*",
+    "ext-imagick": "*"
+  }
+}

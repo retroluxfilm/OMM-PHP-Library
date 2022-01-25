@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Sourcecode" pattern="file[OMM PHP Library]:src/*" />
+</component>
