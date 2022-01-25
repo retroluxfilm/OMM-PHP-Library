@@ -90,7 +90,7 @@ class RemoteRepositoryXML
 
             // create the root element
             $this->root = $this->xml->createElement(self::OPEN_MOD_MANAGER_REPOSITORY);
-            $this->xml->append($this->root);
+            $this->xml->appendChild($this->root);
         }
     }
 
@@ -106,7 +106,7 @@ class RemoteRepositoryXML
         $uuidList = $this->root->getElementsByTagName("uuid");
         if ($uuidList->length == 0) {
             $uuid = $this->xml->createElement("uuid", RepositoryHelper::generateGuidV4());
-            $this->root->append($uuid);
+            $this->root->appendChild($uuid);
         }
 
         // create & update repository title
@@ -122,7 +122,7 @@ class RemoteRepositoryXML
         $downPathList = $this->root->getElementsByTagName("downpath");
         if ($downPathList->length == 0) {
             $downpath = $this->xml->createElement("downpath", $repositoryRootPath);
-            $this->root->append($downpath);
+            $this->root->appendChild($downpath);
         } else {
             $downPathList->item(0)->nodeValue = $repositoryRootPath;
         }
@@ -160,6 +160,7 @@ class RemoteRepositoryXML
     /**
      * Adds package descriptor to the repository XML
      * @param Package $package
+     * @throws Exception
      */
     public function addRemotePackage(Package $package)
     {

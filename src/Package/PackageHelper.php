@@ -36,14 +36,15 @@ class PackageHelper
 
     /**
      * Encodes the logo image for the package to be readable by OMM
-     * @param string $logoFile
-     * @return false|string
+     * @param string $imageRawData
+     * @return string
+     * @throws Exception
      */
-    public static function encodePackageLogo(string $imageRawData)
+    public static function encodePackageLogo(string $imageRawData): string
     {
         //The snapshot/logo must be the Base64 encoded binary data of a JPEG format square image of 128 x 128 pixels.
-        $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $contentType = $finfo->buffer($imageRawData);
+        $fileInfo = new finfo(FILEINFO_MIME_TYPE);
+        $contentType = $fileInfo->buffer($imageRawData);
 
         $encodedImageData = base64_encode($imageRawData);
 
@@ -53,13 +54,14 @@ class PackageHelper
             return "data:" . $contentType . ";base64," . $encodedImageData;
         } else {
             // encoding was not successful
-            error_log("logo file could not be encoded properly");
+            throw new Exception("logo file could not be encoded properly");
         }
+
     }
 
     /**
      * Encodes the given description text for the package into the required format for OMM.
-     * Will return an array with "bytes" and "textdata" in it.
+     * Will return an array with "bytes" and "encodedText" in it.
      * @param string $rawDescriptionText
      * @return array
      * @throws InvalidArgumentException
@@ -69,7 +71,7 @@ class PackageHelper
     {
         //no text was given
         if (empty($rawDescriptionText)) {
-            throw new InvalidArgumentException("No descriotion text was given to be encoded");
+            throw new InvalidArgumentException("No description text was given to be encoded");
         }
 
         //copy raw text
@@ -95,7 +97,7 @@ class PackageHelper
 
         return array(
             "bytes" => $byteSize,
-            "textdata" => "data:application/octet-stream;base64," . $base64EncodedText
+            "encodedText" => "data:application/octet-stream;base64," . $base64EncodedText
         );
     }
 
@@ -113,10 +115,10 @@ class PackageHelper
      * Calculates the MD5 hash of the file by using the same algorithm the OMM is using.
      * Currently using the XXHash3 algorithm
      * @param string $filePath
-     * @return false|string
+     * @return string
      * @throws Exception
      */
-    public static function calculatePackageMD5Hash(string $filePath)
+    public static function calculatePackageMD5Hash(string $filePath): string
     {
         // fetch the MD5 hash of the given file
         if (!file_exists($filePath)) {
@@ -135,10 +137,10 @@ class PackageHelper
     /**
      * creates the thumbnail from the logo of the package to the required size constrains
      * @param string $logoImageData
-     * @return false|string
+     * @return string
      * @throws ImagickException
      */
-    public static function createThumbnail(string $logoImageData)
+    public static function createThumbnail(string $logoImageData): string
     {
         $image = new Imagick();
         $image->readImageBlob($logoImageData);

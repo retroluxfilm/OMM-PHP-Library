@@ -105,6 +105,7 @@ class Package
     /**
      * Generates the remote descriptor to be added to the remote repository xml
      * @return DOMElement
+     * @throws Exception
      */
     public function getRemoteDescriptor(): DOMElement
     {
@@ -139,12 +140,12 @@ class Package
         if (!empty($rawDescription)) {
             $encodedTextData = PackageHelper::encodePackageDescription($rawDescription);
 
-            $description = $xml->createElement("description", $encodedTextData["textdata"]);
+            $description = $xml->createElement("description", $encodedTextData["encodedText"]);
             $description->setAttribute("bytes", $encodedTextData["bytes"]);
             $remote->appendChild($description);
         }
 
-        $xml->append($remote);
+        $xml->appendChild($remote);
         return $remote;
     }
 
