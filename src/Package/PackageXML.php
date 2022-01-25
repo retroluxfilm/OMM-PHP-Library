@@ -37,7 +37,6 @@ class PackageXML
      */
     public function __construct(string $packageXMLData)
     {
-
         // usually named package.omp
         $this->xml = simplexml_load_string($packageXMLData);
 
@@ -81,7 +80,7 @@ class PackageXML
     public function getDescription(): string
     {
         // return description of the package
-        return (string) $this->xml->description;
+        return (string)$this->xml->description;
     }
 
     /**
@@ -91,7 +90,7 @@ class PackageXML
     public function getLogoImage(): string
     {
         //return logo from the package
-        return (string) $this->xml->picture;
+        return (string)$this->xml->picture;
     }
 
 

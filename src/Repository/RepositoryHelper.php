@@ -36,8 +36,9 @@ class RepositoryHelper
      */
     public static function generateGuidV4(): string
     {
-        if (function_exists('com_create_guid') === true)
+        if (function_exists('com_create_guid') === true) {
             return trim(com_create_guid(), '{}');
+        }
 
         $data = random_bytes(16);
 

@@ -68,7 +68,7 @@ class PackageHelper
     public static function encodePackageDescription(string $rawDescriptionText): array
     {
         //no text was given
-        if(empty($rawDescriptionText)){
+        if (empty($rawDescriptionText)) {
             throw new InvalidArgumentException("No descriotion text was given to be encoded");
         }
 
@@ -86,7 +86,7 @@ class PackageHelper
 
         //compress string with the zlip deflate method
         $descriptionText = gzcompress($descriptionText, 9);
-        if($descriptionText === false){
+        if ($descriptionText === false) {
             throw new Exception("Could not compress the given text");
         }
 
@@ -97,7 +97,6 @@ class PackageHelper
             "bytes" => $byteSize,
             "textdata" => "data:application/octet-stream;base64," . $base64EncodedText
         );
-
     }
 
     /**
@@ -141,44 +140,12 @@ class PackageHelper
      */
     public static function createThumbnail(string $logoImageData)
     {
-//        $originalImage = imagecreatefromstring($logoImageData);
-//        $originalWidth = imagesx($originalImage);
-//        $originalHeight = imagesy($originalImage);
-//
-//        // check if scaling is required?
-//        if ($originalWidth <= self::THUMBNAIL_SIZE && $originalHeight <= self::THUMBNAIL_SIZE) {
-//            imagedestroy($originalImage);
-//            return $logoImageData;
-//        }
-//
-//        //TODO improve crop area to be centered
-//        //crop image first
-//        $originalSize = min($originalWidth, $originalHeight);
-//        $croppedImage = imagecrop(
-//            $originalImage,
-//            ['x' => 0, 'y' => 0, 'width' => $originalSize, 'height' => $originalSize]
-//        );
-//        imagedestroy($originalImage);
-//
-//        // scale to the required size
-//        $scaledImage = imagescale($croppedImage, self::THUMBNAIL_SIZE, self::THUMBNAIL_SIZE, IMG_BICUBIC);
-//        imagedestroy($croppedImage);
-//
-//        //return as byte data
-//        ob_start();
-//        imagejpeg($scaledImage);
-//        $scaledImageData = ob_get_clean();
-//        imagedestroy($scaledImage);
-//
-//        return $scaledImageData;
-
         $image = new Imagick();
         $image->readImageBlob($logoImageData);
-        $image->cropThumbnailImage(self::THUMBNAIL_SIZE,self::THUMBNAIL_SIZE);
+        $image->cropThumbnailImage(self::THUMBNAIL_SIZE, self::THUMBNAIL_SIZE);
         $scaledImage = $image->getImageBlob();
         $image->destroy();
         return $scaledImage;
-
     }
 
 }

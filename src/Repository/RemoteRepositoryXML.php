@@ -49,100 +49,12 @@ class RemoteRepositoryXML
      */
     public function __construct(string $repositoryFileName, string $repositoryTitle, string $repositoryRootPath)
     {
-
         // store filename to save it later
         $this->repositoryFileName = $repositoryFileName;
 
         // init xml structure
         $this->initializeRepositoryXML($repositoryFileName);
         $this->updateGlobalXMLData($repositoryTitle, $repositoryRootPath);
-    }
-
-    public function __destruct()
-    {
-        //release memory for the xml
-        unset($this->root);
-        unset($this->remotes);
-        unset($this->xml);
-    }
-
-    /**
-     * Returns the amount of remote packages are currently in the repository
-     * @return int
-     */
-    public function getRemotePackageCount(): int
-    {
-        return $this->remoteCount;
-    }
-
-    /**
-     * Adds package descriptor to the repository XML
-     * @param Package $package
-     */
-    public function addRemotePackage(Package $package)
-    {
-        //TODO check if already present => skip
-
-        // import mode into the repository document XML
-        $nodeCopy = $this->xml->importNode($package->getRemoteDescriptor(), true);
-        $this->remotes->appendChild($nodeCopy);
-
-        //increment remote counter
-        $this->adjustRemoteCount(1);
-    }
-
-
-    /**
-     *  Specific removal of a remote package by the ident attribute
-     * @param string $packageIdent
-     */
-    public function removeRemotePackage(string $packageIdent)
-    {
-
-        /* @var $childNode DOMNode */
-        foreach ($this->remotes->childNodes as $childNode) {
-            $nodeIdent = $childNode->attributes->getNamedItem("ident")->nodeValue;
-            // if package identity has been found
-            if(strcmp($nodeIdent,$packageIdent) == 0){
-                // remove node and decrement node count
-                $this->remotes->removeChild($childNode);
-                $this->adjustRemoteCount(-1);
-                break;
-            }
-
-        }
-
-    }
-
-    /**
-     * Removes all remote packages
-     */
-    public function cleanAllRemotePackages()
-    {
-
-        //TODO make better to only remove children of the remotes and set the count to 0
-        $this->remotes->remove();
-
-        $this->remotes = $this->xml->createElement("remotes");
-        $this->remotes->setAttribute(self::REMOTES_COUNT, "0");
-        $this->root->appendChild($this->remotes);
-        $this->remoteCount = 0;
-    }
-
-    /**
-     * Saves the remote repository XML
-     * @throws Exception
-     */
-    public function saveXML()
-    {
-
-        if ($this->xml != null) {
-            $bytesWritten = $this->xml->save($this->repositoryFileName);
-
-            if ($bytesWritten === false) {
-                throw new Exception("repository XML " . $this->repositoryFileName . " could not be saved");
-            }
-        }
     }
 
     /**
@@ -159,7 +71,6 @@ class RemoteRepositoryXML
 
         // load existing repository XML
         if (file_exists($repositoryFileName)) {
-
             // load xml file
             if (!$this->xml->load($repositoryFileName)) {
                 throw new Exception("Could not load repository xml file " . $repositoryFileName);
@@ -172,11 +83,10 @@ class RemoteRepositoryXML
             if ($this->root == null || $this->root->nodeName != self::OPEN_MOD_MANAGER_REPOSITORY) {
                 throw new Exception("Existing XML is not a valid remote repository file.");
             }
-
         } else {
             // create new repository xml
             $this->xml->xmlVersion = "1.0";
-           // $this->xml->encoding = "utf-8";
+            // $this->xml->encoding = "utf-8";
 
             // create the root element
             $this->root = $this->xml->createElement(self::OPEN_MOD_MANAGER_REPOSITORY);
@@ -230,6 +140,39 @@ class RemoteRepositoryXML
         }
     }
 
+    public function __destruct()
+    {
+        //release memory for the xml
+        unset($this->root);
+        unset($this->remotes);
+        unset($this->xml);
+    }
+
+    /**
+     * Returns the amount of remote packages are currently in the repository
+     * @return int
+     */
+    public function getRemotePackageCount(): int
+    {
+        return $this->remoteCount;
+    }
+
+    /**
+     * Adds package descriptor to the repository XML
+     * @param Package $package
+     */
+    public function addRemotePackage(Package $package)
+    {
+        //TODO check if already present => skip
+
+        // import mode into the repository document XML
+        $nodeCopy = $this->xml->importNode($package->getRemoteDescriptor(), true);
+        $this->remotes->appendChild($nodeCopy);
+
+        //increment remote counter
+        $this->adjustRemoteCount(1);
+    }
+
     /**
      * Adjusts the remote count by the given delta
      * @param int $delta
@@ -238,6 +181,54 @@ class RemoteRepositoryXML
     {
         $this->remoteCount += $delta;
         $this->remotes->attributes->getNamedItem(self::REMOTES_COUNT)->nodeValue = $this->remoteCount;
+    }
+
+    /**
+     *  Specific removal of a remote package by the ident attribute
+     * @param string $packageIdent
+     */
+    public function removeRemotePackage(string $packageIdent)
+    {
+        /* @var $childNode DOMNode */
+        foreach ($this->remotes->childNodes as $childNode) {
+            $nodeIdent = $childNode->attributes->getNamedItem("ident")->nodeValue;
+            // if package identity has been found
+            if (strcmp($nodeIdent, $packageIdent) == 0) {
+                // remove node and decrement node count
+                $this->remotes->removeChild($childNode);
+                $this->adjustRemoteCount(-1);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Removes all remote packages
+     */
+    public function cleanAllRemotePackages()
+    {
+        //TODO make better to only remove children of the remotes and set the count to 0
+        $this->remotes->remove();
+
+        $this->remotes = $this->xml->createElement("remotes");
+        $this->remotes->setAttribute(self::REMOTES_COUNT, "0");
+        $this->root->appendChild($this->remotes);
+        $this->remoteCount = 0;
+    }
+
+    /**
+     * Saves the remote repository XML
+     * @throws Exception
+     */
+    public function saveXML()
+    {
+        if ($this->xml != null) {
+            $bytesWritten = $this->xml->save($this->repositoryFileName);
+
+            if ($bytesWritten === false) {
+                throw new Exception("repository XML " . $this->repositoryFileName . " could not be saved");
+            }
+        }
     }
 
 }

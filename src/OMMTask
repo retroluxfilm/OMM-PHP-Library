@@ -14,7 +14,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 // TODO clean up command line argument description etc.
 if ($argc <= 2 || in_array($argv[1], array('--help', '-help', '-h', '-?'))) {
- echo <<<EOT
+    echo <<<EOT
 
     Command line task for the OMM web repository generator.
 
@@ -25,11 +25,8 @@ if ($argc <= 2 || in_array($argv[1], array('--help', '-help', '-h', '-?'))) {
     --help, -help, -h, -? : Shows help on how to use this task
     generateFolderRepository : Generates repository XMl from a folder structure
 EOT;
-
 } else {
-
     try {
-
         //switches between the given task from the command line
         $task = $argv[1];
         switch ($task) {
@@ -38,14 +35,11 @@ EOT;
                 break;
             default:
                 error_log("Could not find a task for " . $task);
-
         }
-
     } catch (Exception $exception) {
         error_log("Error on Task: " . $exception->getMessage());
         exit();
     }
-
 }
 
 /**
@@ -55,8 +49,7 @@ EOT;
 /**
  * Fallback str_ends_with function for PHP < 8.0
  */
-if (! function_exists('str_ends_with'))
-{
+if (!function_exists('str_ends_with')) {
     function str_ends_with(string $haystack, string $needle): bool
     {
         $needle_len = strlen($needle);
@@ -123,7 +116,6 @@ class OMMTask
 
                     // add package to remote repository
                     $remoteRepository->addRemotePackage($package);
-
                 } catch (Exception $exception) {
                     error_log("Skipped Invalid Archive '" . $entry . "' due to the error: " . $exception->getMessage());
                 }
