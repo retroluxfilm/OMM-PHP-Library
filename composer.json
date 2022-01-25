@@ -1,7 +1,6 @@
 {
   "name": "retrolux/omm-php-library",
   "description": "Open Mod Manager PHP library for web remote repositories",
-  "keywords": ["modmanager, console", "cli", "command line", "terminal"],
   "minimum-stability": "dev",
   "license": "GPL-3.0-or-later",
   "readme": "README.md",
