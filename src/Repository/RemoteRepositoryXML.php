@@ -208,16 +208,17 @@ class RemoteRepositoryXML
      */
     public function cleanAllRemotePackages()
     {
-
         //reverse through all child nodes and remove them all
         $count = $this->remotes->childNodes->length;
-        for ($i = 0; $i < $count; $i++) {
-            $childNode = $this->remotes->childNodes->item(0);  // !!! not item($i) !!!
-            $this->remotes->removeChild($childNode);
-        }
+        if($count > 0) {
+            for ($i = 0; $i < $count; $i++) {
+                $childNode = $this->remotes->childNodes->item(0);  // !!! not item($i) !!!
+                $this->remotes->removeChild($childNode);
+            }
 
-        // reset remote counter by subtracting the current remote count
-        $this->adjustRemoteCount(- $this->remoteCount);
+            // reset remote counter by subtracting the current remote count
+            $this->adjustRemoteCount(-$this->remoteCount);
+        }
     }
 
     /**
