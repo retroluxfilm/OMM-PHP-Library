@@ -208,13 +208,16 @@ class RemoteRepositoryXML
      */
     public function cleanAllRemotePackages()
     {
-        //TODO make better to only remove children of the remotes and set the count to 0
-        $this->remotes->remove();
 
-        $this->remotes = $this->xml->createElement("remotes");
-        $this->remotes->setAttribute(self::REMOTES_COUNT, "0");
-        $this->root->appendChild($this->remotes);
-        $this->remoteCount = 0;
+        //reverse through all child nodes and remove them all
+        $count = $this->remotes->childNodes->length;
+        for ($i = 0; $i < $count; $i++) {
+            $childNode = $this->remotes->childNodes->item(0);  // !!! not item($i) !!!
+            $this->remotes->removeChild($childNode);
+        }
+
+        // reset remote counter by subtracting the current remote count
+        $this->adjustRemoteCount(- $this->remoteCount);
     }
 
     /**
