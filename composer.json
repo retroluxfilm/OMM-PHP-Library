@@ -4,7 +4,7 @@
   "keywords": ["modmanager, console", "cli", "command line", "terminal"],
   "minimum-stability": "dev",
   "license": "GPL-3.0-or-later",
-  "readme": "readme.md",
+  "readme": "README.md",
   "authors": [
     {
       "name": "Alexandre Miguel Maia",
@@ -21,9 +21,6 @@
     },
     "exclude-from-classmap": ["/tests/"]
   },
-  "config": {
-    "use-include-path": true
-  },
   "require": {
     "php" : ">=7.4",
     "ext-dom": "*",
@@ -34,7 +31,5 @@
     "ext-zip": "*",
     "ext-zlib": "*",
     "ext-imagick": "*"
-  },
-  "bootstrapVersion": 3,
-  "styleLoaders": []
+  }
 }
