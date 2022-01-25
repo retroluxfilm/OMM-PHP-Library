@@ -10,12 +10,15 @@
 namespace OMM;
 
 //initiate autoloader to be able to run from CLI and from code
-foreach(array(__DIR__ . '/../vendor', __DIR__ . '/../../../vendor') as $vendorDir) {
-    if(is_dir($vendorDir)) {
-        require_once $vendorDir . '/autoload.php';
-        break;
-    }
-}
+//foreach(array(__DIR__ . '/vendor',__DIR__ . '/../vendor', __DIR__ . '/../../../../vendor') as $vendorDir) {
+//    if(is_dir($vendorDir)) {
+//        require_once $vendorDir . '/autoload.php';
+//        break;
+//    }
+//}
+
+include $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
+require_once $_composer_autoload_path;
 
 // TODO clean up command line argument description etc.
 if ($argc <= 2 || in_array($argv[1], array('--help', '-help', '-h', '-?'))) {
@@ -62,7 +65,7 @@ if (!function_exists('str_ends_with')) {
     }
 }
 
-use Exception;
+use Composer\Composer;use Exception;
 use OMM\Package\Package;
 use OMM\Repository\RemoteRepositoryXML;
 

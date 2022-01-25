@@ -44,5 +44,5 @@ Generates the `Package Download Repository` saved into `downloads/repository.xml
 *(the folder for the OMMTask might vary on your webserver)*
 
 ```bash
-php .config/composer/vendor/retrolux/omm_php_library/src/OMMTask generateFolderRepository "downloads/repository.xml" "Package Download Repository" "downloads/packages"
+php .config/composer/vendor/retrolux/omm-php-library/src/OMMTask generateFolderRepository "downloads/repository.xml" "Package Download Repository" "downloads/packages"
 ```

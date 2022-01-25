@@ -20,6 +20,7 @@
     },
     "exclude-from-classmap": ["/tests/"]
   },
+  "bin": ["src/OMMTask"],
   "require": {
     "php" : ">=7.4",
     "ext-dom": "*",
@@ -29,6 +30,7 @@
     "ext-mbstring": "*",
     "ext-zip": "*",
     "ext-zlib": "*",
-    "ext-imagick": "*"
+    "ext-imagick": "*",
+    "composer-runtime-api": "^2.2"
   }
 }
