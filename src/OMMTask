@@ -10,7 +10,7 @@
 namespace OMM;
 
 //initiate autoloader
-require_once __DIR__ . '/../vendor/autoload.php';
+require "vendor/autoload.php";
 
 // TODO clean up command line argument description etc.
 if ($argc <= 2 || in_array($argv[1], array('--help', '-help', '-h', '-?'))) {
