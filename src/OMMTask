@@ -1,9 +1,9 @@
 #!/usr/bin/env  php
 <?php
 /**
- * Tasks to generate repository XMLs for OMM though a web backend using PHP 7.4+
+ * Tasks to generate repository XMLs for the Open Mod Manager through a web backend using PHP 7.4+
  * @author Alexandre Miguel Maia (info@retrolux.de)
- * @link https://github.com/retroluxfilm //TODO add right LINK
+ * @link https://github.com/retroluxfilm/OMM-PHP-Library
  */
 
 

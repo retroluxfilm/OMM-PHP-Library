@@ -12,7 +12,7 @@
     }
   ],
   "support": {
-    "issues": "https://github.com/retroluxfilm"
+    "issues": "https://github.com/retroluxfilm/OMM-PHP-Library"
   },
   "autoload": {
     "psr-4": {
