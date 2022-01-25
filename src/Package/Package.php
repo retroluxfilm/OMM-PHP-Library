@@ -120,6 +120,7 @@ class Package
         $remote->setAttribute("file", $this->packageArchiveFile);
         $remote->setAttribute("bytes", $this->packageByteSize);
         $remote->setAttribute("md5sum", PackageHelper::calculatePackageMD5Hash($this->packageArchiveFilePath));
+        $remote->setAttribute("checksum", "toBeRemoved"); //TODO Remove after testing
 
         // add dependencies if defined
         $dependencies = $this->packageXML->getDependencies();
