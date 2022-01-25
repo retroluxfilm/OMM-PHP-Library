@@ -50,17 +50,6 @@ if ($argc <= 2 || in_array($argv[1], array('--help', '-help', '-h', '-?'))) {
  * ---------------------------------------------------------------------------------------------
  */
 
-/**
- * Fallback str_ends_with function for PHP < 8.0
- */
-if (!function_exists('str_ends_with')) {
-    function str_ends_with(string $haystack, string $needle): bool
-    {
-        $needle_len = strlen($needle);
-        return ($needle_len === 0 || 0 === substr_compare($haystack, $needle, -$needle_len));
-    }
-}
-
 use Exception;
 use OMM\Package\Package;
 use OMM\Repository\RemoteRepositoryXML;
@@ -110,7 +99,7 @@ class OMMTask
                 }
 
                 // skip non zip archives
-                if (!str_ends_with($entry, ".zip")) {
+                if (strcasecmp("zip",pathinfo($entry, PATHINFO_EXTENSION)) != 0) {
                     continue;
                 }
 
