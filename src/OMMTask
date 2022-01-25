@@ -9,8 +9,13 @@
 
 namespace OMM;
 
-//initiate autoloader
-require "vendor/autoload.php";
+//initiate autoloader to be able to run from CLI and from code
+foreach(array(__DIR__ . '/../vendor', __DIR__ . '/../../../vendor') as $vendorDir) {
+    if(is_dir($vendorDir)) {
+        require_once $vendorDir . '/autoload.php';
+        break;
+    }
+}
 
 // TODO clean up command line argument description etc.
 if ($argc <= 2 || in_array($argv[1], array('--help', '-help', '-h', '-?'))) {
