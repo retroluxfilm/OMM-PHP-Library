@@ -33,8 +33,21 @@ use OMM\Package\Package;
  */
 class RemoteRepositoryXML
 {
-    private const OPEN_MOD_MANAGER_REPOSITORY = "Open_Mod_Manager_Repository";
-    private const REMOTES_COUNT = "count";
+
+    /**
+     * Tags of the remote repository xml
+     */
+    private const
+        TAG_OMM_REPOSITORY = "Open_Mod_Manager_Repository",
+        TAG_UUID = "uuid",
+        TAG_TITLE = "title",
+        TAG_DOWNPATH = "downpath",
+        TAG_REMOTES = "remotes";
+
+    /**
+     * Attributes of the remote repository xml
+     */
+    private const ATTRIBUTE_COUNT = "count";
 
     private DOMDocument $xml;
     private DOMElement $root;
@@ -76,11 +89,10 @@ class RemoteRepositoryXML
                 throw new Exception("Could not load repository xml file " . $repositoryFileName);
             }
             // fetch root node
-            /** @var DOMElement $this */
-            $this->root = $this->xml->getElementsByTagName(self::OPEN_MOD_MANAGER_REPOSITORY)->item(0);
+            $this->root = $this->xml->documentElement;
 
             // check if the repository xml is valid
-            if ($this->root == null || $this->root->nodeName != self::OPEN_MOD_MANAGER_REPOSITORY) {
+            if ($this->root == null || $this->root->nodeName != self::TAG_OMM_REPOSITORY) {
                 throw new Exception("Existing XML is not a valid remote repository file.");
             }
         } else {
@@ -89,7 +101,7 @@ class RemoteRepositoryXML
             // $this->xml->encoding = "utf-8";
 
             // create the root element
-            $this->root = $this->xml->createElement(self::OPEN_MOD_MANAGER_REPOSITORY);
+            $this->root = $this->xml->createElement(self::TAG_OMM_REPOSITORY);
             $this->xml->appendChild($this->root);
         }
     }
@@ -103,40 +115,40 @@ class RemoteRepositoryXML
     protected function updateGlobalXMLData(string $repositoryTitle, string $repositoryRootPath): void
     {
         // create uuid if not present
-        $uuidList = $this->root->getElementsByTagName("uuid");
+        $uuidList = $this->root->getElementsByTagName(self::TAG_UUID);
         if ($uuidList->length == 0) {
-            $uuid = $this->xml->createElement("uuid", RepositoryHelper::generateGuidV4());
+            $uuid = $this->xml->createElement(self::TAG_UUID, RepositoryHelper::generateGuidV4());
             $this->root->appendChild($uuid);
         }
 
         // create & update repository title
-        $titleList = $this->root->getElementsByTagName("title");
+        $titleList = $this->root->getElementsByTagName(self::TAG_TITLE);
         if ($titleList->length == 0) {
-            $title = $this->xml->createElement("title", $repositoryTitle);
+            $title = $this->xml->createElement(self::TAG_TITLE, $repositoryTitle);
             $this->root->appendChild($title);
         } else {
             $titleList->item(0)->nodeValue = $repositoryTitle;
         }
 
         //add or update repository download root path
-        $downPathList = $this->root->getElementsByTagName("downpath");
+        $downPathList = $this->root->getElementsByTagName(self::TAG_DOWNPATH);
         if ($downPathList->length == 0) {
-            $downpath = $this->xml->createElement("downpath", $repositoryRootPath);
+            $downpath = $this->xml->createElement(self::TAG_DOWNPATH, $repositoryRootPath);
             $this->root->appendChild($downpath);
         } else {
             $downPathList->item(0)->nodeValue = $repositoryRootPath;
         }
 
         // add remote package element and store it for later modification
-        $remotesList = $this->root->getElementsByTagName("remotes");
+        $remotesList = $this->root->getElementsByTagName(self::TAG_REMOTES);
         if ($remotesList->length == 0) {
-            $this->remotes = $this->xml->createElement("remotes");
-            $this->remotes->setAttribute(self::REMOTES_COUNT, $this->remoteCount);
+            $this->remotes = $this->xml->createElement(self::TAG_REMOTES);
+            $this->remotes->setAttribute(self::ATTRIBUTE_COUNT, $this->remoteCount);
             $this->root->appendChild($this->remotes);
         } else {
             //init remote element and remote counter from xml
             $this->remotes = $remotesList->item(0);
-            $this->remoteCount = $this->remotes->getAttribute(self::REMOTES_COUNT);
+            $this->remoteCount = $this->remotes->getAttribute(self::ATTRIBUTE_COUNT);
         }
     }
 
@@ -165,9 +177,10 @@ class RemoteRepositoryXML
     public function addRemotePackage(Package $package)
     {
         //TODO check if already present => skip
+        
 
         // import mode into the repository document XML
-        $nodeCopy = $this->xml->importNode($package->getRemoteDescriptor(), true);
+        $nodeCopy = $this->xml->importNode($package->generateRemotePackageDescriptor(), true);
         $this->remotes->appendChild($nodeCopy);
 
         //increment remote counter
@@ -181,7 +194,7 @@ class RemoteRepositoryXML
     protected function adjustRemoteCount(int $delta): void
     {
         $this->remoteCount += $delta;
-        $this->remotes->attributes->getNamedItem(self::REMOTES_COUNT)->nodeValue = $this->remoteCount;
+        $this->remotes->attributes->getNamedItem(self::ATTRIBUTE_COUNT)->nodeValue = $this->remoteCount;
     }
 
     /**
@@ -192,7 +205,7 @@ class RemoteRepositoryXML
     {
         /* @var $childNode DOMNode */
         foreach ($this->remotes->childNodes as $childNode) {
-            $nodeIdent = $childNode->attributes->getNamedItem("ident")->nodeValue;
+            $nodeIdent = $childNode->attributes->getNamedItem(Package::ATTRIBUTE_IDENT)->nodeValue;
             // if package identity has been found
             if (strcmp($nodeIdent, $packageIdent) == 0) {
                 // remove node and decrement node count

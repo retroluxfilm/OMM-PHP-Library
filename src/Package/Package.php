@@ -33,7 +33,27 @@ use ZipArchive;
 class Package
 {
 
+    /**
+     * Package descriptor file
+     */
     private const PACKAGE_DESCRIPTOR_FILE = "package.omp";
+
+    /**
+     * Tags of the remote package descriptor
+     */
+    public const
+        TAG_REMOTE = "remote",
+        TAG_PICTURE = "picture",
+        TAG_DESCRIPTION = "description";
+
+    /**
+     * Attributes of the remote package descriptor
+     */
+    public const
+        ATTRIBUTE_IDENT = "ident",
+        ATTRIBUTE_FILE = "file",
+        ATTRIBUTE_BYTES = "bytes",
+        ATTRIBUTE_MD5 = "md5sum";
 
     public PackageXML $packageXML;
     private string $packageArchiveFile;
@@ -61,7 +81,81 @@ class Package
         $this->packageByteSize = filesize($packageArchiveFilePath);
 
         // open the archive to retrieve information
+        $this->retrieveInformationFromArchive($packageArchiveFilePath);
+    }
+
+
+    public function __destruct()
+    {
+        unset($this->packageXML);
+    }
+
+    /**
+     * Generates the remote descriptor to be added to the remote repository xml.
+     * INFO: this is an an expensive operation and should only be used when the package needs to be added to the repository
+     * @return DOMElement
+     * @throws Exception
+     */
+    public function generateRemotePackageDescriptor(): DOMElement
+    {
+        //create DOM document to be able to create the remote xml snipped
+        $xml = new DOMDocument();
+        $xml->formatOutput = true;
+        $xml->preserveWhiteSpace = false;
+
+        //create remote root element
+        $remote = $xml->createElement(self::TAG_REMOTE);
+        $remote->setAttribute(self::ATTRIBUTE_IDENT, $this->packageXML->getIdentifier());
+        $remote->setAttribute(self::ATTRIBUTE_FILE, $this->packageArchiveFile);
+        $remote->setAttribute(self::ATTRIBUTE_BYTES, $this->packageByteSize);
+
+        //generate hash (expensive on large files)
+        $remote->setAttribute("checksum", "toBeRemoved"); //TODO Remove after testing
+        $remote->setAttribute(self::ATTRIBUTE_MD5, PackageHelper::calculatePackageMD5Hash($this->packageArchiveFilePath));
+
+        // add dependencies if defined
+        $dependencies = $this->packageXML->getDependencies();
+        if (isset($dependencies[0])) {
+            $dom_sxe = dom_import_simplexml($dependencies);
+            $convertedDependencyNode = $xml->importNode($dom_sxe, true);
+            $remote->appendChild($convertedDependencyNode);
+        }
+
+        // add logo image if set
+        if (isset($this->logoImageData)) {
+
+            // Crop & Resize logo to max 128x128 pixels in size
+            $thumbnail = PackageHelper::createThumbnail($this->logoImageData);
+
+            $picture = $xml->createElement(self::TAG_PICTURE, PackageHelper::encodePackageLogo($thumbnail));
+            $remote->appendChild($picture);
+         }
+
+        // set description when set
+        $rawDescription = $this->packageXML->getDescription();
+        if (!empty($rawDescription)) {
+            $encodedTextData = PackageHelper::encodePackageDescription($rawDescription);
+
+            $description = $xml->createElement(self::TAG_DESCRIPTION, $encodedTextData["encodedText"]);
+            $description->setAttribute(self::ATTRIBUTE_BYTES, $encodedTextData["bytes"]);
+            $remote->appendChild($description);
+        }
+
+        $xml->appendChild($remote);
+        return $remote;
+    }
+
+    /**
+     * Retrieves all information from the package archive
+     * @param string $packageArchiveFilePath
+     * @throws Exception
+     */
+    protected function retrieveInformationFromArchive(string $packageArchiveFilePath): void
+    {
+
+        // zip file handle
         $packageZip = new ZipArchive();
+
         $result = $packageZip->open($packageArchiveFilePath, ZipArchive::RDONLY);
         if ($result != true) {
             throw new Exception("Could not open package zip file. Error: " . $result);
@@ -87,67 +181,10 @@ class Package
                     "OMM Package Logo (" . $logoImageName . ") not found or invalid in " . $packageArchiveFilePath
                 );
             }
-
-            // Crop & Resize logo to max 128x128 pixels in size
-            $this->logoImageData = PackageHelper::createThumbnail($this->logoImageData);
         }
 
         // closes package zip after reading out all required information
         $packageZip->close();
-    }
-
-
-    public function __destruct()
-    {
-        unset($this->packageXML);
-    }
-
-    /**
-     * Generates the remote descriptor to be added to the remote repository xml
-     * @return DOMElement
-     * @throws Exception
-     */
-    public function getRemoteDescriptor(): DOMElement
-    {
-        //create DOM document to be able to create the remote xml snipped
-        $xml = new DOMDocument();
-        $xml->formatOutput = true;
-        $xml->preserveWhiteSpace = false;
-
-        //create remote root element
-        $remote = $xml->createElement("remote");
-        $remote->setAttribute("ident", $this->packageXML->getIdentifier());
-        $remote->setAttribute("file", $this->packageArchiveFile);
-        $remote->setAttribute("bytes", $this->packageByteSize);
-        $remote->setAttribute("md5sum", PackageHelper::calculatePackageMD5Hash($this->packageArchiveFilePath));
-        $remote->setAttribute("checksum", "toBeRemoved"); //TODO Remove after testing
-
-        // add dependencies if defined
-        $dependencies = $this->packageXML->getDependencies();
-        if (isset($dependencies[0])) {
-            $dom_sxe = dom_import_simplexml($dependencies);
-            $convertedDependencyNode = $xml->importNode($dom_sxe, true);
-            $remote->appendChild($convertedDependencyNode);
-        }
-
-        // add logo image if set
-        if (isset($this->logoImageData)) {
-            $picture = $xml->createElement("picture", PackageHelper::encodePackageLogo($this->logoImageData));
-            $remote->appendChild($picture);
-        }
-
-        // set description when set
-        $rawDescription = $this->packageXML->getDescription();
-        if (!empty($rawDescription)) {
-            $encodedTextData = PackageHelper::encodePackageDescription($rawDescription);
-
-            $description = $xml->createElement("description", $encodedTextData["encodedText"]);
-            $description->setAttribute("bytes", $encodedTextData["bytes"]);
-            $remote->appendChild($description);
-        }
-
-        $xml->appendChild($remote);
-        return $remote;
     }
 
 }
