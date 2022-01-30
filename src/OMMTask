@@ -30,48 +30,44 @@ if (isset($_composer_autoload_path)) {
     require_once __DIR__ . '/../vendor/autoload.php';
 }
 
-// TODO clean up command line argument description etc.
-if ($argc <= 2 || in_array($argv[1], array('--help', '-help', '-h', '-?'))) {
-    echo "
-    Command line task for the OMM web repository generator.
-
-    Usage:
-    OMMTask [task] [arguments]
-
-    [task]
-    --help, -help, -h, -? : Shows help on how to use this task
-    generateFolderRepository : Generates repository XMl from a folder structure
-";
-} else {
-    try {
-        //switches between the given task from the command line
-        $task = $argv[1];
-        switch ($task) {
-            case "generateFolderRepository":
-                OMMTask::generateFolderRepository($argv[2], $argv[3], $argv[4]);
-                break;
-            default:
-                error_log("Could not find a task for " . $task);
-        }
-    } catch (Exception $exception) {
-        error_log("Error on Task: " . $exception->getMessage());
-        exit();
-    }
-}
+// call commandline task function
+OMMTask::commandLineInterface($argv);
 
 /**
  * ---------------------------------------------------------------------------------------------
  */
 
 use Exception;
-use OMM\Package\Package;
-use OMM\Repository\RemoteRepositoryXML;
+use OMM\Task\FolderRepositoryTask;
+
+use function error_log;
 
 /**
  * Issue Tasks for the web repository handling. Also usable from command line.
  */
 class OMMTask
 {
+
+    /**
+     * Passes in all commandline arguments to initiate given commands
+     * @param array $arguments
+     */
+    public static function commandLineInterface(array $arguments): void
+    {
+
+        //clean up by removing the php script file name from the arguments
+        array_shift($arguments);
+
+        // if no arguments are given or help is requested
+        $argumentCount = count($arguments);
+        if($argumentCount == 0 || in_array($arguments[0],array("-?","-h","--help","-help"))){
+            self::showHelp();
+            return;
+        }
+
+        self::startTask($arguments, $argumentCount);
+    }
+
 
     /**
      * Generates a repository xml based on the given root path
@@ -81,57 +77,62 @@ class OMMTask
      * @param bool $recursive true if the sub folders should be processed as well
      * @throws Exception
      */
+
     public static function generateFolderRepository(
         string $xmlName,
         string $repositoryName,
         string $repositoryRootPath,
         bool $recursive = false
     ) {
-        // check if the root patch a valid directory
-        if (!is_dir($repositoryRootPath)) {
-            throw new Exception("Repository root path is not a valid directory");
-        }
 
-        $remoteRepository = new RemoteRepositoryXML($xmlName, $repositoryName, $repositoryRootPath);
-
-        //TODO Remove this when proper checks are implemented allowing to merge etc.
-        $remoteRepository->cleanAllRemotePackages();
-
-        echo "Generate Folder Repository for: " . $repositoryRootPath . "\n";
-
-        if ($handle = opendir($repositoryRootPath)) {
-            while (false !== ($entry = readdir($handle))) {
-                // exclude special folders
-                if ($entry == "." || $entry == "..") {
-                    continue;
-                }
-
-                if (is_dir($entry) && $recursive) {
-                    //TODO implement subdirectory recursion needed. => Skipping for now
-                    continue;
-                }
-
-                // skip non zip archives
-                if (strcasecmp("zip",pathinfo($entry, PATHINFO_EXTENSION)) != 0) {
-                    continue;
-                }
-
-                try {
-                    $fullArchiveDir = $repositoryRootPath . DIRECTORY_SEPARATOR . $entry;
-                    $package = new Package($fullArchiveDir);
-
-                    // add package to remote repository
-                    $remoteRepository->addRemotePackage($package);
-                } catch (Exception $exception) {
-                    error_log("Skipped Invalid Archive '" . $entry . "' due to the error: " . $exception->getMessage());
-                }
-            }
-            closedir($handle);
-        }
-
-        //save changes to the remote repository
-        $remoteRepository->saveXML();
-
-        echo "Finished generating folder repository\n";
+//        $classTest = FolderRepositoryTask::class;
+//        $class = new ReflectionClass("OMM\TASK\FolderRepositoryTask");
+//        $method = $class->getMethod("generateFolderRepository");
+//        $method->invokeArgs(null,array($xmlName, $repositoryName, $repositoryRootPath, $recursive));
+        FolderRepositoryTask::generateFolderRepository($xmlName, $repositoryName, $repositoryRootPath, $recursive);
     }
+
+    protected static function showHelp(): void
+    {
+        echo "Command line task for the OMM web repository generator. Type only the command to get additional help\n\n";
+        echo "Usage:\n";
+        echo " OMMTask <command> <args>\n\n";
+        echo "Commands:\n";
+        echo " --help, -help, -h, -?             : Shows help on how to use this task\n";
+        echo " generateFolderRepository          : Generates repository XMl from a folder structure\n";
+    }
+
+    /**
+     * Starts the given task if available. Shows help when not all arguments are given for the task
+     * @param array $arguments
+     * @param int $argumentCount
+     */
+    protected static function startTask(array $arguments, int $argumentCount): void
+    {
+        try {
+            //switches between the given task from the command line
+            $task = $arguments[0];
+            switch ($task) {
+                case "generateFolderRepository":
+
+                    if ($argumentCount < 4) {
+                        FolderRepositoryTask::showHelp();
+                        return;
+                    }
+
+                    OMMTask::generateFolderRepository($arguments[1], $arguments[2], $arguments[3], $arguments[4]);
+                    break;
+                default:
+                    error_log("Could not find a task for " . $task);
+            }
+        } catch (Exception $exception) {
+            error_log("Error on Task: " . $exception->getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param array $arguments
+     * @param int $argumentCount
+     */
 }

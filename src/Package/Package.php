@@ -44,7 +44,9 @@ class Package
     public const
         TAG_REMOTE = "remote",
         TAG_PICTURE = "picture",
-        TAG_DESCRIPTION = "description";
+        TAG_DESCRIPTION = "description",
+        TAG_DOWNPATH = "downpath",
+        TAG_CATEGORY = "category";
 
     /**
      * Attributes of the remote package descriptor
@@ -60,6 +62,7 @@ class Package
     private string $packageArchiveFilePath;
     private string $logoImageData;
     private int $packageByteSize;
+    private string $downloadPath;
 
     /**
      * Creates the data object for the mod Package by the given file archive
@@ -141,6 +144,18 @@ class Package
             $remote->appendChild($description);
         }
 
+        //set subfolder download path if set
+        if(isset($this->downloadPath)){
+            $downpath = $xml->createElement(self::TAG_DOWNPATH, $this->downloadPath);
+            $remote->appendChild($downpath);
+        }
+
+        // set category if defined
+        $category = $this->packageXML->getCategory();
+        if(!empty($category)){
+            $remote->appendChild($xml->createElement(self::TAG_CATEGORY, $category));
+        }
+
         $xml->appendChild($remote);
         return $remote;
     }
@@ -185,6 +200,24 @@ class Package
 
         // closes package zip after reading out all required information
         $packageZip->close();
+    }
+
+    /**
+     * Adds custom download folder path
+     * @param string $downloadPath
+     */
+    public function setDownloadPath(string $downloadPath)
+    {
+        $this->downloadPath = $downloadPath;
+    }
+
+    /**
+     * Adds custom URL download path
+     * @param string $url
+     */
+    public function addURL(string $url)
+    {
+        //TODO Implement
     }
 
 }

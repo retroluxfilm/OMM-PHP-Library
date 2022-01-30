@@ -93,5 +93,14 @@ class PackageXML
         return (string)$this->xml->picture;
     }
 
+    /**
+     * Get category of the package
+     * @return string
+     */
+    public function getCategory() : string
+    {
+        return(string) $this->xml->category;
+    }
+
 
 }
