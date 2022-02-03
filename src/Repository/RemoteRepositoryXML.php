@@ -21,7 +21,6 @@
 
 namespace OMM\Repository;
 
-
 use DOMDocument;
 use DOMElement;
 use DOMNode;
@@ -54,7 +53,8 @@ class RemoteRepositoryXML
     private DOMNode $remotes;
 
     private string $repositoryFileName;
-    private int $remoteCount = 0;
+    private RemotePackageList $remotePackageList;
+
 
     /**
      * Creates the remote repository Descriptor
@@ -64,6 +64,7 @@ class RemoteRepositoryXML
     {
         // store filename to save it later
         $this->repositoryFileName = $repositoryFileName;
+        $this->remotePackageList = new RemotePackageList();
 
         // init xml structure
         $this->initializeRepositoryXML($repositoryFileName);
@@ -98,7 +99,7 @@ class RemoteRepositoryXML
         } else {
             // create new repository xml
             $this->xml->xmlVersion = "1.0";
-            // $this->xml->encoding = "utf-8";
+            //$this->xml->encoding = "utf-8";
 
             // create the root element
             $this->root = $this->xml->createElement(self::TAG_OMM_REPOSITORY);
@@ -143,13 +144,16 @@ class RemoteRepositoryXML
         $remotesList = $this->root->getElementsByTagName(self::TAG_REMOTES);
         if ($remotesList->length == 0) {
             $this->remotes = $this->xml->createElement(self::TAG_REMOTES);
-            $this->remotes->setAttribute(self::ATTRIBUTE_COUNT, $this->remoteCount);
+            $this->remotes->setAttribute(self::ATTRIBUTE_COUNT, 0);
             $this->root->appendChild($this->remotes);
+
         } else {
-            //init remote element and remote counter from xml
+            //fetch remote element
             $this->remotes = $remotesList->item(0);
-            $this->remoteCount = $this->remotes->getAttribute(self::ATTRIBUTE_COUNT);
         }
+
+        // initialize array for remote packages
+        $this->fillRemotePackagesList();
     }
 
     public function __destruct()
@@ -166,7 +170,7 @@ class RemoteRepositoryXML
      */
     public function getRemotePackageCount(): int
     {
-        return $this->remoteCount;
+        return $this->remotePackageList->size();
     }
 
     /**
@@ -177,24 +181,15 @@ class RemoteRepositoryXML
     public function addRemotePackage(Package $package)
     {
         //TODO check if already present => skip
-        
+
+        $remoteDescriptor = $package->generateRemotePackageDescriptor();
 
         // import mode into the repository document XML
-        $nodeCopy = $this->xml->importNode($package->generateRemotePackageDescriptor(), true);
+        $nodeCopy = $this->xml->importNode($remoteDescriptor->getRemoteXMLElement(), true);
         $this->remotes->appendChild($nodeCopy);
 
-        //increment remote counter
-        $this->adjustRemoteCount(1);
-    }
-
-    /**
-     * Adjusts the remote count by the given delta
-     * @param int $delta
-     */
-    protected function adjustRemoteCount(int $delta): void
-    {
-        $this->remoteCount += $delta;
-        $this->remotes->attributes->getNamedItem(self::ATTRIBUTE_COUNT)->nodeValue = $this->remoteCount;
+        // add to package list
+        $this->remotePackageList->add($remoteDescriptor);
     }
 
     /**
@@ -205,12 +200,15 @@ class RemoteRepositoryXML
     {
         /* @var $childNode DOMNode */
         foreach ($this->remotes->childNodes as $childNode) {
-            $nodeIdent = $childNode->attributes->getNamedItem(Package::ATTRIBUTE_IDENT)->nodeValue;
+            $nodeIdent = $childNode->attributes->getNamedItem(RemotePackageDescriptor::ATTRIBUTE_IDENT)->nodeValue;
             // if package identity has been found
             if (strcmp($nodeIdent, $packageIdent) == 0) {
                 // remove node and decrement node count
                 $this->remotes->removeChild($childNode);
-                $this->adjustRemoteCount(-1);
+
+                // remove from list as well
+                $this->remotePackageList->removeByIdent($nodeIdent);
+
                 break;
             }
         }
@@ -229,8 +227,8 @@ class RemoteRepositoryXML
                 $this->remotes->removeChild($childNode);
             }
 
-            // reset remote counter by subtracting the current remote count
-            $this->adjustRemoteCount(-$this->remoteCount);
+            // clean list as well
+            $this->remotePackageList->clear();
         }
     }
 
@@ -241,10 +239,28 @@ class RemoteRepositoryXML
     public function saveXML()
     {
         if ($this->xml != null) {
+
+            //ensure that the remote count is set before saving the xml
+            $this->remotes->attributes->getNamedItem(self::ATTRIBUTE_COUNT)->nodeValue = $this->getRemotePackageCount();
+
             $bytesWritten = $this->xml->save($this->repositoryFileName);
 
             if ($bytesWritten === false) {
                 throw new Exception("repository XML " . $this->repositoryFileName . " could not be saved");
+            }
+        }
+    }
+
+    protected function fillRemotePackagesList(): void
+    {
+        $this->remotePackageDescriptorList = array();
+
+        //read in all remote packages
+        if ($this->remotes->hasChildNodes()) {
+            /* @var $childNode DOMElement */
+            foreach ($this->remotes->childNodes as $childNode) {
+                $remotePackageDescriptor = new RemotePackageDescriptor($childNode);
+                $this->remotePackageList->add( $remotePackageDescriptor);
             }
         }
     }

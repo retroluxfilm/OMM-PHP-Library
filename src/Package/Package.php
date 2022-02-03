@@ -23,9 +23,10 @@
 namespace OMM\Package;
 
 use DOMDocument;
-use DOMElement;
 use Exception;
+use ImagickException;
 use ZipArchive;
+use OMM\Repository\RemotePackageDescriptor;
 
 /**
  * Holds all information from a single mod package so it can be added, removed & updated into repository
@@ -38,31 +39,12 @@ class Package
      */
     private const PACKAGE_DESCRIPTOR_FILE = "package.omp";
 
-    /**
-     * Tags of the remote package descriptor
-     */
-    public const
-        TAG_REMOTE = "remote",
-        TAG_PICTURE = "picture",
-        TAG_DESCRIPTION = "description",
-        TAG_DOWNPATH = "downpath",
-        TAG_CATEGORY = "category";
-
-    /**
-     * Attributes of the remote package descriptor
-     */
-    public const
-        ATTRIBUTE_IDENT = "ident",
-        ATTRIBUTE_FILE = "file",
-        ATTRIBUTE_BYTES = "bytes",
-        ATTRIBUTE_MD5 = "md5sum";
-
-    public PackageXML $packageXML;
-    private string $packageArchiveFile;
-    private string $packageArchiveFilePath;
-    private string $logoImageData;
-    private int $packageByteSize;
-    private string $downloadPath;
+    private PackageXML $packageXML;
+    protected string $packageArchiveFile;
+    protected string $packageArchiveFilePath;
+    protected string $logoImageData;
+    protected int $packageByteSize;
+    protected string $customURL;
 
     /**
      * Creates the data object for the mod Package by the given file archive
@@ -96,25 +78,26 @@ class Package
     /**
      * Generates the remote descriptor to be added to the remote repository xml.
      * INFO: this is an an expensive operation and should only be used when the package needs to be added to the repository
-     * @return DOMElement
+     * @return RemotePackageDescriptor
+     * @throws ImagickException
      * @throws Exception
      */
-    public function generateRemotePackageDescriptor(): DOMElement
+    public function generateRemotePackageDescriptor(): RemotePackageDescriptor
     {
+
         //create DOM document to be able to create the remote xml snipped
         $xml = new DOMDocument();
         $xml->formatOutput = true;
         $xml->preserveWhiteSpace = false;
 
         //create remote root element
-        $remote = $xml->createElement(self::TAG_REMOTE);
-        $remote->setAttribute(self::ATTRIBUTE_IDENT, $this->packageXML->getIdentifier());
-        $remote->setAttribute(self::ATTRIBUTE_FILE, $this->packageArchiveFile);
-        $remote->setAttribute(self::ATTRIBUTE_BYTES, $this->packageByteSize);
+        $remote = $xml->createElement(RemotePackageDescriptor::TAG_REMOTE);
+        $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_IDENT, $this->packageXML->getIdentifier());
+        $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_FILE, $this->packageArchiveFile);
+        $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_BYTES, $this->packageByteSize);
 
         //generate hash (expensive on large files)
-        $remote->setAttribute("checksum", "toBeRemoved"); //TODO Remove after testing
-        $remote->setAttribute(self::ATTRIBUTE_MD5, PackageHelper::calculatePackageMD5Hash($this->packageArchiveFilePath));
+        $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_MD5, PackageHelper::calculatePackageMD5Hash($this->packageArchiveFilePath));
 
         // add dependencies if defined
         $dependencies = $this->packageXML->getDependencies();
@@ -130,7 +113,7 @@ class Package
             // Crop & Resize logo to max 128x128 pixels in size
             $thumbnail = PackageHelper::createThumbnail($this->logoImageData);
 
-            $picture = $xml->createElement(self::TAG_PICTURE, PackageHelper::encodePackageLogo($thumbnail));
+            $picture = $xml->createElement(RemotePackageDescriptor::TAG_PICTURE, PackageHelper::encodePackageLogo($thumbnail));
             $remote->appendChild($picture);
          }
 
@@ -139,25 +122,26 @@ class Package
         if (!empty($rawDescription)) {
             $encodedTextData = PackageHelper::encodePackageDescription($rawDescription);
 
-            $description = $xml->createElement(self::TAG_DESCRIPTION, $encodedTextData["encodedText"]);
-            $description->setAttribute(self::ATTRIBUTE_BYTES, $encodedTextData["bytes"]);
+            $description = $xml->createElement(RemotePackageDescriptor::TAG_DESCRIPTION, $encodedTextData["encodedText"]);
+            $description->setAttribute(RemotePackageDescriptor::ATTRIBUTE_BYTES, $encodedTextData["bytes"]);
             $remote->appendChild($description);
         }
 
-        //set subfolder download path if set
-        if(isset($this->downloadPath)){
-            $downpath = $xml->createElement(self::TAG_DOWNPATH, $this->downloadPath);
+        //set sub folder download path if set
+        if(isset($this->customURL)){
+            $downpath = $xml->createElement(RemotePackageDescriptor::TAG_URL, $this->customURL);
             $remote->appendChild($downpath);
         }
 
         // set category if defined
         $category = $this->packageXML->getCategory();
         if(!empty($category)){
-            $remote->appendChild($xml->createElement(self::TAG_CATEGORY, $category));
+            $remote->appendChild($xml->createElement(RemotePackageDescriptor::TAG_CATEGORY, $category));
         }
 
         $xml->appendChild($remote);
-        return $remote;
+
+        return new RemotePackageDescriptor($remote);
     }
 
     /**
@@ -203,21 +187,29 @@ class Package
     }
 
     /**
-     * Adds custom download folder path
-     * @param string $downloadPath
+     * Adds custom URL download path. It can be a http url or a folder.
+     * @param string $urlOrFolder
      */
-    public function setDownloadPath(string $downloadPath)
+    public function setCustomURL(string $urlOrFolder)
     {
-        $this->downloadPath = $downloadPath;
+        $this->customURL = $urlOrFolder;
     }
 
     /**
-     * Adds custom URL download path
-     * @param string $url
+     * Gets the package xml from the package to get more information about the package
+     * @return PackageXML
      */
-    public function addURL(string $url)
+    public function getPackageXML(): PackageXML
     {
-        //TODO Implement
+        return $this->packageXML;
+    }
+
+    /**
+     * Returns the unique identifier for the package
+     * @return string
+     */
+    public function getIdentifier() : string {
+        return $this->packageXML->getIdentifier();
     }
 
 }

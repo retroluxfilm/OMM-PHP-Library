@@ -70,10 +70,10 @@ class FolderRepositoryTask
 
                 //set sub download directory if it is not the same as the root directory
                 if( strlen($directoryName) != strlen($repositoryRootPath)){
-                    //remove the rootpath from the subdir
-                    $subFolder = substr($directoryName, strlen($repositoryRootPath)+1 );
+                    //remove the root path from the subdir
+                    // $subFolder = substr($directoryName, strlen($repositoryRootPath)+1 );
                     // add subdir info to the package
-                    $package->setDownloadPath($subFolder);
+                    $package->setCustomURL($directoryName);
                 }
                 // add package to remote repository
                 $remoteRepository->addRemotePackage($package);
@@ -125,7 +125,7 @@ class FolderRepositoryTask
         //scan directory for all files and sub directories
         $fileList = scandir($searchDir);
         if($fileList === FALSE){
-            throw new Exception("Could not search for achives in given folder: " . $searchDir);
+            throw new Exception("Could not search for archives in given folder: " . $searchDir);
         }
 
         //go through each entry

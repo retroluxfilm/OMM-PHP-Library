@@ -99,7 +99,7 @@ class OMMTask
         echo " OMMTask <command> <args>\n\n";
         echo "Commands:\n";
         echo " --help, -help, -h, -?             : Shows help on how to use this task\n";
-        echo " generateFolderRepository          : Generates repository XMl from a folder structure\n";
+        echo " generateFolderRepository          : Generates repository XML from a folder structure\n";
     }
 
     /**
