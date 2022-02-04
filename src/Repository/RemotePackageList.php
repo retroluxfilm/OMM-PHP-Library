@@ -31,7 +31,7 @@ class RemotePackageList
      * Array that stores package descriptors
      * @var array
      */
-    private array $remotePackageDescriptorList;
+    public array $remotePackageDescriptorList;
 
     /**
      * Creates a list that holds package descriptors as values and identities as key
@@ -60,18 +60,9 @@ class RemotePackageList
      * Removes the remote package by the identifier
      * @param string $ident
      */
-    public function removeByIdent(string $ident): void
+    public function remove(string $ident): void
     {
         unset($this->remotePackageDescriptorList[$ident]);
-    }
-
-    /**
-     * Removes the entry by the remote package descriptor
-     * @param RemotePackageDescriptor $package
-     */
-    public function removeByPackage(RemotePackageDescriptor $package): void
-    {
-       $this->removeByIdent($package->getIdentity());
     }
 
     /**
@@ -92,5 +83,33 @@ class RemotePackageList
         return count($this->remotePackageDescriptorList);
     }
 
+    /**
+     * Returns true if the given identity is in the list
+     * @param string $ident
+     * @return bool
+     */
+    public function contains(string $ident) : bool
+    {
+        return array_key_exists($ident,$this->remotePackageDescriptorList);
+    }
+
+    public function get(string $ident) : ?RemotePackageDescriptor
+    {
+        if( $this->contains($ident)) {
+            return $this->remotePackageDescriptorList[$ident];
+        }
+
+        return NULL;
+
+    }
+
+    /**
+     * Returns all remote package descriptors as array
+     * @return array
+     */
+    public function getValues() : array
+    {
+        return array_values($this->remotePackageDescriptorList);
+    }
 
 }

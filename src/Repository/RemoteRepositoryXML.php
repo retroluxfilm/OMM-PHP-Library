@@ -54,6 +54,7 @@ class RemoteRepositoryXML
 
     private string $repositoryFileName;
     private RemotePackageList $remotePackageList;
+    private string $repositoryRootPath;
 
 
     /**
@@ -64,6 +65,7 @@ class RemoteRepositoryXML
     {
         // store filename to save it later
         $this->repositoryFileName = $repositoryFileName;
+        $this->repositoryRootPath = $repositoryRootPath;
         $this->remotePackageList = new RemotePackageList();
 
         // init xml structure
@@ -180,7 +182,10 @@ class RemoteRepositoryXML
      */
     public function addRemotePackage(Package $package)
     {
-        //TODO check if already present => skip
+        //check if already present => remove old entry
+        if($this->remotePackageList->contains($package->getIdentifier())) {
+            $this->removeRemotePackage($package->getIdentifier());
+        }
 
         $remoteDescriptor = $package->generateRemotePackageDescriptor();
 
@@ -207,11 +212,21 @@ class RemoteRepositoryXML
                 $this->remotes->removeChild($childNode);
 
                 // remove from list as well
-                $this->remotePackageList->removeByIdent($nodeIdent);
+                $this->remotePackageList->remove($nodeIdent);
 
                 break;
             }
         }
+    }
+
+    /**
+     * Returns true if the package identifier is already present in the list
+     * @param string $packageIdent
+     * @return bool
+     */
+    public function containsRemotePackage(string $packageIdent) : bool
+    {
+        return $this->remotePackageList->contains($packageIdent);
     }
 
     /**
@@ -264,5 +279,35 @@ class RemoteRepositoryXML
             }
         }
     }
+
+    /**
+     * Returns the remove package descriptor
+     * @param string $packageIdentier
+     * @return RemotePackageDescriptor
+     */
+    public function getRemotePackageDescriptor(string $packageIdentier) : RemotePackageDescriptor
+    {
+        return $this->remotePackageList->get($packageIdentier);
+    }
+
+
+    /**
+     * Returns all remote packages that are part of the remote repository
+     * @return array
+     */
+    public function getRemotePackageList(): array
+    {
+        return $this->remotePackageList->getValues();
+    }
+
+    /**
+     * Returns the global repository root path where the mods are located
+     * @return string
+     */
+    public function getRepositoryRootPath(): string
+    {
+        return $this->repositoryRootPath;
+    }
+
 
 }

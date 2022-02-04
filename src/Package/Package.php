@@ -212,4 +212,13 @@ class Package
         return $this->packageXML->getIdentifier();
     }
 
+    /**
+     * Returns the size of the package archive in bytes
+     * @return int
+     */
+    public function getByteSize() : int
+    {
+        return $this->packageByteSize;
+    }
+
 }

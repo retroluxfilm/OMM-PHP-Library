@@ -72,6 +72,7 @@ class RemotePackageDescriptor
     }
 
     /**
+     * Returns the identifier for the mod package
      * @return string
      */
     public function getIdentity(): string
@@ -79,14 +80,45 @@ class RemotePackageDescriptor
         return $this->remoteXMLElement->getAttribute(self::ATTRIBUTE_IDENT);
     }
 
+    /**
+     * Returns the size of the file in bytes
+     * @return string
+     */
     public function getByteSize() : string
     {
         return $this->remoteXMLElement->getAttribute(self::ATTRIBUTE_BYTES);
     }
 
+    /**
+     * return MD5 hash of the file
+     * @return string
+     */
     public function getMD5Hash() : string
     {
         return $this->remoteXMLElement->getAttribute(self::ATTRIBUTE_MD5);
+    }
+
+    /**
+     * Get file name
+     * @return string
+     */
+    public function getFile() : string
+    {
+        return $this->remoteXMLElement->getAttribute(self::ATTRIBUTE_FILE);
+    }
+
+    /**
+     * Returns the custom url when set or an empty string when not defined
+     * @return string
+     */
+    public function getURL() : string
+    {
+        $urlNodes = $this->remoteXMLElement->getElementsByTagName(self::TAG_URL);
+        if($urlNodes->count() > 0) {
+            return $urlNodes->item(0)->nodeValue;
+        }
+
+        return "";
     }
 
     /**

@@ -23,6 +23,7 @@ namespace OMM\Task;
 
 use Exception;
 use OMM\Package\Package;
+use OMM\Repository\RemotePackageDescriptor;
 use OMM\Repository\RemoteRepositoryXML;
 
 class FolderRepositoryTask
@@ -46,15 +47,15 @@ class FolderRepositoryTask
         if (!is_dir($repositoryRootPath)) {
             throw new Exception("Repository root path is not a valid directory");
         }
-
-        $remoteRepository = new RemoteRepositoryXML($xmlName, $repositoryName, $repositoryRootPath);
-
-        //TODO Remove this when proper checks are implemented allowing to merge etc.
-        $remoteRepository->cleanAllRemotePackages();
-
         echo "-------------------------------------------------------------------------------\n";
         echo "Generate Folder Repository from root folder: '". $repositoryRootPath . "'\n";
         echo "-------------------------------------------------------------------------------\n";
+
+        //initialize repository XML
+        $remoteRepository = new RemoteRepositoryXML($xmlName, $repositoryName, $repositoryRootPath);
+
+        // clean up all remote packages that are not available anymore
+        self::cleanObsoletePackages($remoteRepository);
 
         //fetches Available archives from the given folder
         $availableArchives = self::getAvailableArchives($repositoryRootPath, $recursive);
@@ -64,6 +65,18 @@ class FolderRepositoryTask
 
             try {
                 $package = new Package($archiveFilePath);
+
+                // if there is already a package present with the same identity
+                if($remoteRepository->containsRemotePackage($package->getIdentifier())){
+                    $remotePackage = $remoteRepository->getRemotePackageDescriptor($package->getIdentifier());
+
+                    // checks if the package has the same size and skip it, only does quick size checks and not MD5
+                    // as it would be very slow
+                    if($remotePackage->getByteSize() == $package->getByteSize()){
+                        echo "Skipped '" . $archiveFilePath ."' because it was already present\n";
+                        continue;
+                    }
+                }
 
                 //fetch directory name
                 $directoryName = pathinfo($archiveFilePath, PATHINFO_DIRNAME);
@@ -75,6 +88,7 @@ class FolderRepositoryTask
                     // add subdir info to the package
                     $package->setCustomURL($directoryName);
                 }
+
                 // add package to remote repository
                 $remoteRepository->addRemotePackage($package);
                 echo "Package '" . $archiveFilePath ."' added to the repository.\n";
@@ -93,7 +107,7 @@ class FolderRepositoryTask
         echo "=> Finished generating folder repository\n";
     }
 
-    static function showHelp(){
+    public static function showHelp(){
 
         echo "Generates a repository xml from a given repository XML\n\n";
         echo "Usage:\n";
@@ -110,6 +124,33 @@ class FolderRepositoryTask
 
     }
 
+
+    private static function cleanObsoletePackages(RemoteRepositoryXML $remoteRepositoryXML)
+    {
+        $allRemotePackages = $remoteRepositoryXML->getRemotePackageList();
+
+        /* @var $remotePackage RemotePackageDescriptor */
+        foreach ($allRemotePackages as $remotePackage) {
+            $filename = $remotePackage->getFile();
+            $url = $remotePackage->getURL();
+
+            // if a custom url was not set. Use the global root path
+            if(empty($url)){
+                $url = $remoteRepositoryXML->getRepositoryRootPath();
+            }
+
+            // check if the package is still available
+            $fullPackagePath = $url . DIRECTORY_SEPARATOR . $filename;
+            if(!file_exists($fullPackagePath)){
+                //remove package from repository if the file does not exist anymore
+                $remoteRepositoryXML->removeRemotePackage($remotePackage->getIdentity());
+                echo "Removed '" . $fullPackagePath ."' as it was not available anymore\n";
+            }
+
+        }
+
+    }
+
     /**
      *
      * @param $searchDir
@@ -117,7 +158,7 @@ class FolderRepositoryTask
      * @return array
      * @throws Exception
      */
-    static function getAvailableArchives($searchDir, bool $recursive): array
+    private static function getAvailableArchives($searchDir, bool $recursive): array
     {
 
         $result = array();
