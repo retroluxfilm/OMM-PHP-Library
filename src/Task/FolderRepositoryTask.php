@@ -29,6 +29,23 @@ use OMM\Repository\RemoteRepositoryXML;
 class FolderRepositoryTask
 {
 
+    public static function showHelp(){
+
+        echo "Generates a repository xml from a given repository XML\n\n";
+        echo "Usage:\n";
+        echo " OMMTask generateFolderRepository <xmlName> <repositoryName> <packageRootPath> (<recursive>)\n\n";
+        echo "Arguments:\n";
+        echo " xmlName                   : name and path of the repository xml\n";
+        echo " repositoryName            : name for the repository\n";
+        echo " packageRootPath           : root path where the mod packages are placed\n";
+        echo " recursive                 : true if the sub folders should be processed as well (Default: false)\n";
+
+        // TODO parse from php doc the possible params
+        // $class = new ReflectionClass(FolderRepositoryTask::class);
+        // echo $class->getMethod("generateFolderRepository")->getDocComment();
+
+    }
+
     /**
      * Generates a repository xml based on the given root path
      * @param string $xmlName name and path of the repository xml
@@ -106,24 +123,6 @@ class FolderRepositoryTask
 
         echo "=> Finished generating folder repository\n";
     }
-
-    public static function showHelp(){
-
-        echo "Generates a repository xml from a given repository XML\n\n";
-        echo "Usage:\n";
-        echo " OMMTask generateFolderRepository <xmlName> <repositoryName> <packageRootPath> (<recursive>)\n\n";
-        echo "Arguments:\n";
-        echo " xmlName                   : name and path of the repository xml\n";
-        echo " repositoryName            : name for the repository\n";
-        echo " packageRootPath           : root path where the mod packages are placed\n";
-        echo " recursive                 : true if the sub folders should be processed as well (Default: false)\n";
-
-        // TODO parse from php doc the possible params
-       // $class = new ReflectionClass(FolderRepositoryTask::class);
-       // echo $class->getMethod("generateFolderRepository")->getDocComment();
-
-    }
-
 
     private static function cleanObsoletePackages(RemoteRepositoryXML $remoteRepositoryXML)
     {
