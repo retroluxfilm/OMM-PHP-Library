@@ -54,7 +54,7 @@ class PackageHelper
             return "data:" . $contentType . ";base64," . $encodedImageData;
         } else {
             // encoding was not successful
-            throw new Exception("logo file could not be encoded properly");
+            throw new Exception("Logo file could not be encoded properly.");
         }
 
     }
@@ -71,14 +71,14 @@ class PackageHelper
     {
         //no text was given
         if (empty($rawDescriptionText)) {
-            throw new InvalidArgumentException("No description text was given to be encoded");
+            throw new InvalidArgumentException("No description text was given to be encoded.");
         }
 
         //copy raw text
         $descriptionText = $rawDescriptionText;
 
         // convert line endings from LF to CRLF
-        $descriptionText = self::normalize_line_endings($descriptionText);
+        $descriptionText = self::convertLineEndings($descriptionText);
 
         //utf8 encode text
         $descriptionText = utf8_encode($descriptionText);
@@ -89,7 +89,7 @@ class PackageHelper
         //compress string with the zlip deflate method
         $descriptionText = gzcompress($descriptionText, 9);
         if ($descriptionText === false) {
-            throw new Exception("Could not compress the given text");
+            throw new Exception("Could not compress the given text.");
         }
 
         // encode text as base64
@@ -106,7 +106,7 @@ class PackageHelper
      * @param $string
      * @return array|string|string[]|null
      */
-    private static function normalize_line_endings($string)
+    private static function convertLineEndings($string)
     {
         return preg_replace("/(?<=[^\r]|^)\n/", "\r\n", $string);
     }
@@ -122,7 +122,7 @@ class PackageHelper
     {
         // fetch the MD5 hash of the given file
         if (!file_exists($filePath)) {
-            throw new InvalidArgumentException("package file " . $filePath . " not found");
+            throw new InvalidArgumentException("Package file '" . $filePath . "' not found.");
         }
 
         $md5Hash = md5_file($filePath, false);
@@ -130,7 +130,7 @@ class PackageHelper
         if ($md5Hash != false) {
             return $md5Hash;
         } else {
-            throw new Exception("package file " . $filePath . " md5 hash could not be calculated");
+            throw new Exception("Package file " . $filePath . " md5 hash could not be calculated.");
         }
     }
 

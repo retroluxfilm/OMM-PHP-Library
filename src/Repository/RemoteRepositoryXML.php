@@ -58,7 +58,7 @@ class RemoteRepositoryXML
 
 
     /**
-     * Creates the remote repository Descriptor
+     * Creates the remote repository xml
      * @throws Exception
      */
     public function __construct(string $repositoryFileName, string $repositoryTitle, string $repositoryRootPath)
@@ -70,7 +70,7 @@ class RemoteRepositoryXML
 
         // init xml structure
         $this->initializeRepositoryXML($repositoryFileName);
-        $this->updateGlobalXMLData($repositoryTitle, $repositoryRootPath);
+        $this->updateRepisitoryFromXMLData($repositoryTitle, $repositoryRootPath);
     }
 
     /**
@@ -89,14 +89,14 @@ class RemoteRepositoryXML
         if (file_exists($repositoryFileName)) {
             // load xml file
             if (!$this->xml->load($repositoryFileName)) {
-                throw new Exception("Could not load repository xml file " . $repositoryFileName);
+                throw new Exception("Could not load repository xml '" . $repositoryFileName . "' file.");
             }
             // fetch root node
             $this->root = $this->xml->documentElement;
 
             // check if the repository xml is valid
             if ($this->root == null || $this->root->nodeName != self::TAG_OMM_REPOSITORY) {
-                throw new Exception("Existing XML is not a valid remote repository file.");
+                throw new Exception("Existing XML '". $repositoryFileName . "' is not a valid remote repository file.");
             }
         } else {
             // create new repository xml
@@ -115,7 +115,7 @@ class RemoteRepositoryXML
      * @param string $repositoryRootPath
      * @throws Exception
      */
-    protected function updateGlobalXMLData(string $repositoryTitle, string $repositoryRootPath): void
+    protected function updateRepisitoryFromXMLData(string $repositoryTitle, string $repositoryRootPath): void
     {
         // create uuid if not present
         $uuidList = $this->root->getElementsByTagName(self::TAG_UUID);
@@ -155,7 +155,7 @@ class RemoteRepositoryXML
         }
 
         // initialize array for remote packages
-        $this->fillRemotePackagesList();
+        $this->prefillRemotePackagesList();
     }
 
     public function __destruct()
@@ -180,14 +180,14 @@ class RemoteRepositoryXML
      * @param Package $package
      * @throws Exception
      */
-    public function addRemotePackage(Package $package)
+    public function addRemotePackage(Package $package) : void
     {
         //check if already present => remove old entry
         if($this->remotePackageList->contains($package->getIdentifier())) {
             $this->removeRemotePackage($package->getIdentifier());
         }
 
-        $remoteDescriptor = $package->generateRemotePackageDescriptor();
+        $remoteDescriptor = $package->createRemotePackageDescriptor();
 
         // import mode into the repository document XML
         $nodeCopy = $this->xml->importNode($remoteDescriptor->getRemoteXMLElement(), true);
@@ -201,7 +201,7 @@ class RemoteRepositoryXML
      *  Specific removal of a remote package by the ident attribute
      * @param string $packageIdent
      */
-    public function removeRemotePackage(string $packageIdent)
+    public function removeRemotePackage(string $packageIdent) : void
     {
         /* @var $childNode DOMNode */
         foreach ($this->remotes->childNodes as $childNode) {
@@ -232,7 +232,7 @@ class RemoteRepositoryXML
     /**
      * Removes all remote packages
      */
-    public function cleanAllRemotePackages()
+    public function cleanAllRemotePackages() : void
     {
         //reverse through all child nodes and remove them all
         $count = $this->remotes->childNodes->length;
@@ -251,7 +251,7 @@ class RemoteRepositoryXML
      * Saves the remote repository XML
      * @throws Exception
      */
-    public function saveXML()
+    public function saveXML() : void
     {
         if ($this->xml != null) {
 
@@ -266,7 +266,10 @@ class RemoteRepositoryXML
         }
     }
 
-    protected function fillRemotePackagesList(): void
+    /**
+     * initializes and fills the all remote packages into the list for quick access
+     */
+    protected function prefillRemotePackagesList(): void
     {
         $this->remotePackageDescriptorList = array();
 

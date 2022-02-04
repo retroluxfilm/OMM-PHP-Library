@@ -76,13 +76,13 @@ class Package
     }
 
     /**
-     * Generates the remote descriptor to be added to the remote repository xml.
+     * Creates the remote descriptor to be added to the remote repository xml.
      * INFO: this is an an expensive operation and should only be used when the package needs to be added to the repository
      * @return RemotePackageDescriptor
      * @throws ImagickException
      * @throws Exception
      */
-    public function generateRemotePackageDescriptor(): RemotePackageDescriptor
+    public function createRemotePackageDescriptor(): RemotePackageDescriptor
     {
 
         //create DOM document to be able to create the remote xml snipped
@@ -208,7 +208,8 @@ class Package
      * Returns the unique identifier for the package
      * @return string
      */
-    public function getIdentifier() : string {
+    public function getIdentifier() : string
+    {
         return $this->packageXML->getIdentifier();
     }
 
