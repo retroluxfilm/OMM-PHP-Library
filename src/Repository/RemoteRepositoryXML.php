@@ -70,7 +70,7 @@ class RemoteRepositoryXML
 
         // init xml structure
         $this->initializeRepositoryXML($repositoryFileName);
-        $this->updateRepisitoryFromXMLData($repositoryTitle, $repositoryRootPath);
+        $this->updateRepositoryFromXMLData($repositoryTitle, $repositoryRootPath);
     }
 
     /**
@@ -115,7 +115,7 @@ class RemoteRepositoryXML
      * @param string $repositoryRootPath
      * @throws Exception
      */
-    protected function updateRepisitoryFromXMLData(string $repositoryTitle, string $repositoryRootPath): void
+    protected function updateRepositoryFromXMLData(string $repositoryTitle, string $repositoryRootPath): void
     {
         // create uuid if not present
         $uuidList = $this->root->getElementsByTagName(self::TAG_UUID);
