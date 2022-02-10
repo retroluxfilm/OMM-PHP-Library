@@ -17,7 +17,6 @@
       <extension name="ast" enabled="true" />
       <extension name="blackfire" enabled="true" />
       <extension name="com_dotnet" enabled="true" />
-      <extension name="couchbase_v3" enabled="true" />
       <extension name="crypto" enabled="true" />
       <extension name="ds" enabled="true" />
       <extension name="event" enabled="true" />

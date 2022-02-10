@@ -3,11 +3,11 @@
   <component name="JsonSchemaMappingsProjectConfiguration">
     <state>
       <map>
-        <entry key=".bootstraprc">
+        <entry key="composer.json">
           <value>
             <SchemaInfo>
-              <option name="name" value=".bootstraprc" />
-              <option name="relativePathToSchema" value="https://json.schemastore.org/bootstraprc.json" />
+              <option name="name" value="composer.json" />
+              <option name="relativePathToSchema" value="https://raw.githubusercontent.com/composer/composer/main/res/composer-schema.json" />
               <option name="applicationDefined" value="true" />
               <option name="patterns">
                 <list>
