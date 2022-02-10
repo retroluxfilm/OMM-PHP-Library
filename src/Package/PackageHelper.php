@@ -27,6 +27,7 @@ use Imagick;
 use ImagickException;
 use InvalidArgumentException;
 
+
 /**
  * Helper class for the package object to prepare data for the repository
  */
@@ -112,25 +113,31 @@ class PackageHelper
     }
 
     /**
-     * Calculates the MD5 hash of the file by using the same algorithm the OMM is using.
-     * Currently using the XXHash3 algorithm
+     * Calculates the hash of the of the file by using the same algorithm the OMM is using.
      * @param string $filePath
+     * @param string $algorithm Name of selected hashing algorithm (i.e. "md5", "sha256", "haval160,4", etc..)
      * @return string
      * @throws Exception
      */
-    public static function calculatePackageMD5Hash(string $filePath): string
+    public static function calculatePackageHash(string $filePath, string $algorithm): string
     {
         // fetch the MD5 hash of the given file
         if (!file_exists($filePath)) {
             throw new InvalidArgumentException("Package file '" . $filePath . "' not found.");
         }
 
-        $md5Hash = md5_file($filePath, false);
+        //check if the given has algorithm is present
+        if(!in_array($algorithm,hash_algos())){
+            throw new InvalidArgumentException("Hashing algorithm '" .$algorithm. "' not found.");
+        }
 
-        if ($md5Hash != false) {
-            return $md5Hash;
+        //calculate xxhash
+        $checksum =  hash_file($algorithm,   $filePath);
+
+        if ($checksum != false) {
+            return $checksum;
         } else {
-            throw new Exception("Package file " . $filePath . " md5 hash could not be calculated.");
+            throw new Exception("Package file " . $filePath . " xxHash could not be calculated.");
         }
     }
 

@@ -138,7 +138,7 @@ class GenerateFolderRepositoryTask extends Task
 
                 // add package to remote repository
                 $remoteRepository->addRemotePackage($package);
-                echo "Package '" . $archiveFilePath ."' added to the repository.\n";
+                echo "Added '" . $archiveFilePath ."' package to the repository.\n";
 
                 $needsSave = true;
 

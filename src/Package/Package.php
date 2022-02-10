@@ -97,7 +97,12 @@ class Package
         $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_BYTES, $this->packageByteSize);
 
         //generate hash (expensive on large files)
-        $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_MD5, PackageHelper::calculatePackageMD5Hash($this->packageArchiveFilePath));
+        if(in_array("xxh3",hash_algos())){
+            // uses the faster xxhash algorithm if available (PHP 8.1+)
+            $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_CHECKSUM, PackageHelper::calculatePackageHash($this->packageArchiveFilePath,"xxh3"));
+        } else {
+            $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_MD5, PackageHelper::calculatePackageHash($this->packageArchiveFilePath,"md5"));
+        }
 
         // add dependencies if defined
         $dependencies = $this->packageXML->getDependencies();

@@ -46,7 +46,8 @@ class RemotePackageDescriptor
         ATTRIBUTE_IDENT = "ident",
         ATTRIBUTE_FILE = "file",
         ATTRIBUTE_BYTES = "bytes",
-        ATTRIBUTE_MD5 = "md5sum";
+        ATTRIBUTE_MD5 = "md5sum",
+        ATTRIBUTE_CHECKSUM = "checksum";
 
     /**
      * remote xml element to fetch data from
@@ -96,6 +97,15 @@ class RemotePackageDescriptor
     public function getMD5Hash() : string
     {
         return $this->remoteXMLElement->getAttribute(self::ATTRIBUTE_MD5);
+    }
+
+    /**
+     * return xxHash Checksum of the file
+     * @return string
+     */
+    public function getChecksum() : string
+    {
+        return $this->remoteXMLElement->getAttribute(self::ATTRIBUTE_CHECKSUM);
     }
 
     /**

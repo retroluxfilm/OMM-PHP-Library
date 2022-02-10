@@ -30,7 +30,6 @@
     "ext-mbstring": "*",
     "ext-zip": "*",
     "ext-zlib": "*",
-    "ext-imagick": "*",
-    "composer-runtime-api": "^2.2"
+    "ext-imagick": "*"
   }
 }
