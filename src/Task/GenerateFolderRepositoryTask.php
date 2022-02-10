@@ -26,10 +26,19 @@ use OMM\Package\Package;
 use OMM\Repository\RemotePackageDescriptor;
 use OMM\Repository\RemoteRepositoryXML;
 
-class FolderRepositoryTask
+class GenerateFolderRepositoryTask extends Task
 {
 
-    public static function showHelp(){
+   /**
+     * @inheritdoc
+     */
+    public static string $commandName = "generateFolderRepository";
+
+    /**
+     * @inheritDoc
+     */
+    public static function showHelp(): void
+    {
 
         echo "Generates a repository xml from a given repository XML\n\n";
         echo "Usage:\n";
@@ -40,10 +49,30 @@ class FolderRepositoryTask
         echo " packageRootPath           : root path where the mod packages are placed\n";
         echo " recursive                 : true if the sub folders should be processed as well (Default: false)\n";
 
-        // TODO parse from php doc the possible params
+        // TODO parse from php doc the possible params?
         // $class = new ReflectionClass(FolderRepositoryTask::class);
         // echo $class->getMethod("generateFolderRepository")->getDocComment();
 
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function runTask(array $arguments) : void
+    {
+        // run task with based on the argument count (improve this to something better!)
+        $argumentCount = count($arguments);
+        switch ($argumentCount){
+            case 3:
+                self::generateFolderRepository($arguments[0],$arguments[1],$arguments[2]);
+                break;
+            case 4:
+                self::generateFolderRepository($arguments[0],$arguments[1],$arguments[2],$arguments[3]);
+                break;
+            default:
+                self::showHelp();
+                break;
+        }
     }
 
     /**
@@ -72,7 +101,7 @@ class FolderRepositoryTask
         $remoteRepository = new RemoteRepositoryXML($xmlName, $repositoryName, $repositoryRootPath);
 
         // clean up all remote packages that are not available anymore
-        self::cleanObsoletePackages($remoteRepository);
+        $needsSave = self::cleanObsoletePackages($remoteRepository);
 
         //fetches Available archives from the given folder
         $availableArchives = self::getAvailableArchives($repositoryRootPath, $recursive);
@@ -90,7 +119,7 @@ class FolderRepositoryTask
                     // checks if the package has the same size and skip it, only does quick size checks and not MD5
                     // as it would be very slow
                     if($remotePackage->getByteSize() == $package->getByteSize()){
-                        echo "Skipped '" . $archiveFilePath ."' because it was already present\n";
+                        echo "Skipped '" . $archiveFilePath ."' as it was already present in the repository.\n";
                         continue;
                     }
                 }
@@ -106,9 +135,12 @@ class FolderRepositoryTask
                     $package->setCustomURL($directoryName);
                 }
 
+
                 // add package to remote repository
                 $remoteRepository->addRemotePackage($package);
                 echo "Package '" . $archiveFilePath ."' added to the repository.\n";
+
+                $needsSave = true;
 
             } catch (Exception $exception) {
                 error_log("Skipped Invalid Archive '" . $archiveFilePath . "' due to the error: " . $exception->getMessage());
@@ -116,18 +148,25 @@ class FolderRepositoryTask
 
         }
 
-        //self::addPackagesFromFolderToRepository($remoteRepository, $repositoryRootPath, $recursive);
-
         //save changes to the remote repository
-        $remoteRepository->saveXML();
+        if($needsSave) {
+            echo "Saved repository XML changes to '" . $xmlName ."'.\n";
+            $remoteRepository->saveXML();
+        }
 
         echo "=> Finished generating folder repository\n";
     }
 
-    private static function cleanObsoletePackages(RemoteRepositoryXML $remoteRepositoryXML)
+    /**
+     * Cleans out obsolete packages from repository
+     * @param RemoteRepositoryXML $remoteRepositoryXML
+     * @return bool
+     */
+    private static function cleanObsoletePackages(RemoteRepositoryXML $remoteRepositoryXML): bool
     {
-        $allRemotePackages = $remoteRepositoryXML->getRemotePackageList();
+        $hasCleanedPackages = false;
 
+        $allRemotePackages = $remoteRepositoryXML->getRemotePackageList();
         /* @var $remotePackage RemotePackageDescriptor */
         foreach ($allRemotePackages as $remotePackage) {
             $filename = $remotePackage->getFile();
@@ -144,9 +183,12 @@ class FolderRepositoryTask
                 //remove package from repository if the file does not exist anymore
                 $remoteRepositoryXML->removeRemotePackage($remotePackage->getIdentity());
                 echo "Removed '" . $fullPackagePath ."' as it was not available anymore\n";
+                $hasCleanedPackages = true;
             }
 
         }
+
+        return $hasCleanedPackages;
 
     }
 

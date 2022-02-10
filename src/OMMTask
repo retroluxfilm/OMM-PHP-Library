@@ -38,7 +38,7 @@ OMMTask::commandLineInterface($argv);
  */
 
 use Exception;
-use OMM\Task\FolderRepositoryTask;
+use OMM\Task\GenerateFolderRepositoryTask;
 
 use function error_log;
 
@@ -54,42 +54,14 @@ class OMMTask
      */
     public static function commandLineInterface(array $arguments): void
     {
-
-        //clean up by removing the php script file name from the arguments
-        array_shift($arguments);
-
-        // if no arguments are given or help is requested
+         // if no arguments are given or help is requested
         $argumentCount = count($arguments);
-        if($argumentCount == 0 || in_array($arguments[0],array("-?","-h","--help","-help"))){
+        if($argumentCount == 1 || in_array($arguments[1],array("-?","-h","--help","-help"))){
             self::showHelp();
             return;
         }
 
         self::startTask($arguments, $argumentCount);
-    }
-
-
-    /**
-     * Generates a repository xml based on the given root path
-     * @param string $xmlName name and path of the repository xml
-     * @param string $repositoryName name for the repository
-     * @param string $repositoryRootPath root path where the mod packages are placed
-     * @param bool $recursive true if the sub folders should be processed as well
-     * @throws Exception
-     */
-
-    public static function generateFolderRepository(
-        string $xmlName,
-        string $repositoryName,
-        string $repositoryRootPath,
-        bool $recursive = false
-    ) {
-
-//        $classTest = FolderRepositoryTask::class;
-//        $class = new ReflectionClass("OMM\TASK\FolderRepositoryTask");
-//        $method = $class->getMethod("generateFolderRepository");
-//        $method->invokeArgs(null,array($xmlName, $repositoryName, $repositoryRootPath, $recursive));
-        FolderRepositoryTask::generateFolderRepository($xmlName, $repositoryName, $repositoryRootPath, $recursive);
     }
 
     protected static function showHelp(): void
@@ -110,17 +82,17 @@ class OMMTask
     protected static function startTask(array $arguments, int $argumentCount): void
     {
         try {
+
+            //get task name (lower case)
+            $task = strtolower($arguments[1]);
+
+            //get arguments for the task
+            $taskArguments = array_slice($arguments,2);
+
             //switches between the given task from the command line
-            $task = $arguments[0];
             switch ($task) {
-                case "generateFolderRepository":
-
-                    if ($argumentCount < 4) {
-                        FolderRepositoryTask::showHelp();
-                        return;
-                    }
-
-                    OMMTask::generateFolderRepository($arguments[1], $arguments[2], $arguments[3], $arguments[4]);
+                case strtolower(GenerateFolderRepositoryTask::$commandName):
+                    GenerateFolderRepositoryTask::runTask($taskArguments);
                     break;
                 default:
                     error_log("Could not find a task for " . $task);
@@ -129,10 +101,4 @@ class OMMTask
             error_log("Error on Task: " . $exception->getMessage());
         }
     }
-
-    /**
-     *
-     * @param array $arguments
-     * @param int $argumentCount
-     */
 }
