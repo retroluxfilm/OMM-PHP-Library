@@ -132,7 +132,7 @@ class GenerateFolderRepositoryTask extends Task
                     //remove the root path from the subdir
                     // $subFolder = substr($directoryName, strlen($repositoryRootPath)+1 );
                     // add subdir info to the package
-                    $package->setCustomURL($directoryName);
+                    $package->setCustomURL($directoryName . DIRECTORY_SEPARATOR);
                 }
 
 

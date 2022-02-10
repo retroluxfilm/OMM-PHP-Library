@@ -136,10 +136,10 @@ class RemoteRepositoryXML
         //add or update repository download root path
         $downPathList = $this->root->getElementsByTagName(self::TAG_DOWNPATH);
         if ($downPathList->length == 0) {
-            $downpath = $this->xml->createElement(self::TAG_DOWNPATH, $repositoryRootPath);
+            $downpath = $this->xml->createElement(self::TAG_DOWNPATH, $repositoryRootPath . DIRECTORY_SEPARATOR);
             $this->root->appendChild($downpath);
         } else {
-            $downPathList->item(0)->nodeValue = $repositoryRootPath;
+            $downPathList->item(0)->nodeValue = $repositoryRootPath . DIRECTORY_SEPARATOR;
         }
 
         // add remote package element and store it for later modification
