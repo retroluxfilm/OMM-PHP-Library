@@ -33,10 +33,14 @@ composer global require retrolux/omm-php-library
 
 ### Command Line
 
-Generates the `Package Download Repository` saved into `downloads/repository.xml` scanning for mod packages in the `download/packages folder`
+**generateFolderRepository**
+
+Generates the `Mod Download Repository` saved into `repository.xml` scanning for the packages in the `mods` folder (relative to the xml).
+
+*Note:* Needs to be called within the folder that is accessible through the web server.
 
 ```bash
-OMMTask generateFolderRepository "downloads/repository.xml" "Package Download Repository" "downloads/packages"
+OMMTask generateFolderRepository "repository.xml" "Mod Download Repository" "mods"
 ```
 
 
