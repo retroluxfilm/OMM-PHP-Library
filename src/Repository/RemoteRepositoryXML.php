@@ -52,8 +52,9 @@ class RemoteRepositoryXML
     private DOMElement $root;
     private DOMNode $remotes;
 
-    private string $repositoryFileName;
     private RemotePackageList $remotePackageList;
+
+    private string $repositoryFileName;
     private string $repositoryRootPath;
 
 
