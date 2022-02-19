@@ -141,8 +141,9 @@ class Package
         // set category if defined
         $category = $this->packageXML->getCategory();
         if(!empty($category)){
-            $remote->appendChild($xml->createElement(RemotePackageDescriptor::TAG_CATEGORY, $category));
+            $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_CATEGORY, $category);
         }
+
 
         $xml->appendChild($remote);
 

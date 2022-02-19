@@ -37,8 +37,7 @@ class RemotePackageDescriptor
         TAG_REMOTE = "remote",
         TAG_PICTURE = "picture",
         TAG_DESCRIPTION = "description",
-        TAG_URL = "url",
-        TAG_CATEGORY = "category";
+        TAG_URL = "url";
     /**
      * Attributes of the remote package descriptor
      */
@@ -47,7 +46,8 @@ class RemotePackageDescriptor
         ATTRIBUTE_FILE = "file",
         ATTRIBUTE_BYTES = "bytes",
         ATTRIBUTE_MD5 = "md5sum",
-        ATTRIBUTE_CHECKSUM = "checksum";
+        ATTRIBUTE_CHECKSUM = "checksum",
+        ATTRIBUTE_CATEGORY = "category";
 
     /**
      * remote xml element to fetch data from
