@@ -25,6 +25,7 @@ namespace OMM\Package;
 use DOMDocument;
 use Exception;
 use ImagickException;
+use OMM\Repository\RepositoryHelper;
 use ZipArchive;
 use OMM\Repository\RemotePackageDescriptor;
 
@@ -134,7 +135,7 @@ class Package
 
         //set sub folder download path if set
         if(isset($this->customURL)){
-            $downpath = $xml->createElement(RemotePackageDescriptor::TAG_URL, rawurlencode($this->customURL));
+            $downpath = $xml->createElement(RemotePackageDescriptor::TAG_URL, RepositoryHelper::urlEncodePath($this->customURL));
             $remote->appendChild($downpath);
         }
 
