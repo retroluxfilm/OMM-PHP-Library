@@ -134,7 +134,7 @@ class Package
 
         //set sub folder download path if set
         if(isset($this->customURL)){
-            $downpath = $xml->createElement(RemotePackageDescriptor::TAG_URL, rawurldecode($this->customURL));
+            $downpath = $xml->createElement(RemotePackageDescriptor::TAG_URL, rawurlencode($this->customURL));
             $remote->appendChild($downpath);
         }
 
