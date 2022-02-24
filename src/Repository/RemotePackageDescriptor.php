@@ -125,7 +125,7 @@ class RemotePackageDescriptor
     {
         $urlNodes = $this->remoteXMLElement->getElementsByTagName(self::TAG_URL);
         if($urlNodes->count() > 0) {
-            return $urlNodes->item(0)->nodeValue;
+            return urldecode($urlNodes->item(0)->nodeValue);
         }
 
         return "";
