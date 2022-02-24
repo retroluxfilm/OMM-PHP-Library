@@ -47,6 +47,11 @@ class RepositoryHelper
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 
+    /**
+     * Encodes an file path so that the url can be used in a link. It preserves the directory separators (slashes)
+     * @param string $path
+     * @return string
+     */
     public static function urlEncodePath(string $path) : string{
 
         return implode(DIRECTORY_SEPARATOR, array_map("rawurlencode", explode(DIRECTORY_SEPARATOR, $path)));
