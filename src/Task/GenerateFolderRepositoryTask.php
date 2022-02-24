@@ -46,8 +46,8 @@ class GenerateFolderRepositoryTask extends Task
         echo "Arguments:\n";
         echo " xmlName                   : name and path of the repository xml\n";
         echo " repositoryName            : name for the repository\n";
-        echo " packageRootPath           : root path where the mod packages are placed\n";
-        echo " recursive                 : true if the sub folders should be processed as well (Default: false)\n";
+        echo " packageRootPath           : root path where the mod packages are placed relative to repository xml location\n";
+        echo " recursive                 : true if the sub folders should be processed as well (Default: true)\n";
 
         // TODO parse from php doc the possible params?
         // $class = new ReflectionClass(FolderRepositoryTask::class);
@@ -87,7 +87,7 @@ class GenerateFolderRepositoryTask extends Task
         string $xmlName,
         string $repositoryName,
         string $repositoryRootPath,
-        bool $recursive = false
+        bool $recursive = true
     ) {
         // check if the root patch a valid directory
         if (!is_dir($repositoryRootPath)) {
