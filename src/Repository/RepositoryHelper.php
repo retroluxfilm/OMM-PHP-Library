@@ -57,7 +57,7 @@ class RepositoryHelper
         // first url raw encode elements between directory seperator
         $urlEncoded = implode(DIRECTORY_SEPARATOR, array_map("rawurlencode", explode(DIRECTORY_SEPARATOR, $path)));
         // remove first relative path point and seperator
-        $urlEncoded = str_replace("." + DIRECTORY_SEPARATOR,"",$urlEncoded);
+        $urlEncoded = str_replace("." . DIRECTORY_SEPARATOR,"",$urlEncoded);
         // convert directory seperator to forward slashes
         $urlEncoded = str_replace(DIRECTORY_SEPARATOR,"/",$urlEncoded);
         return $urlEncoded;
