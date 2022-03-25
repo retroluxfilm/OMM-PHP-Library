@@ -25,6 +25,7 @@ use Exception;
 use finfo;
 use Imagick;
 use ImagickException;
+use ImagickPixel;
 use InvalidArgumentException;
 
 
@@ -153,6 +154,15 @@ class PackageHelper
         $image = new Imagick();
         $image->readImageBlob($logoImageData);
         $image->cropThumbnailImage(self::THUMBNAIL_SIZE, self::THUMBNAIL_SIZE);
+
+        //ensures that the thumbnail is in jpeg data format as it is currently required for OMM remote repositories
+        $image->setImageFormat('jpeg');
+        $image->setImageCompression(imagick::COMPRESSION_JPEG);
+        $image->setCompressionQuality(60);
+
+        // set default background color in case there is an alpha image in the source
+        $image->setImageBackgroundColor(new ImagickPixel('white'));
+
         $scaledImage = $image->getImageBlob();
         $image->destroy();
         return $scaledImage;
