@@ -34,8 +34,8 @@ class RemotePackageDescriptor
      * Tags of the remote package descriptor
      */
     public const
-        TAG_REMOTE = "remote",
-        TAG_PICTURE = "picture",
+        TAG_MOD = "mod",
+        TAG_MOD_PICTURE = "thumbnail",
         TAG_DESCRIPTION = "description",
         TAG_URL = "url";
     /**
@@ -46,7 +46,7 @@ class RemotePackageDescriptor
         ATTRIBUTE_FILE = "file",
         ATTRIBUTE_BYTES = "bytes",
         ATTRIBUTE_MD5 = "md5sum",
-        ATTRIBUTE_CHECKSUM = "checksum",
+        ATTRIBUTE_CHECKSUM = "xxhsum",
         ATTRIBUTE_CATEGORY = "category";
 
     /**
@@ -64,7 +64,7 @@ class RemotePackageDescriptor
     public function __construct(DOMElement $remoteXMLElement)
     {
 
-        if($remoteXMLElement->nodeName != self::TAG_REMOTE){
+        if($remoteXMLElement->nodeName != self::TAG_MOD){
             throw new InvalidArgumentException("Passed remote xml element is not valid");
         }
 

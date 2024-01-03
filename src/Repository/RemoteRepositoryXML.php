@@ -41,7 +41,7 @@ class RemoteRepositoryXML
         TAG_UUID = "uuid",
         TAG_TITLE = "title",
         TAG_DOWNPATH = "downpath",
-        TAG_REMOTES = "remotes";
+        TAG_REFERENCES = "references";
 
     /**
      * Attributes of the remote repository xml
@@ -144,9 +144,9 @@ class RemoteRepositoryXML
         }
 
         // add remote package element and store it for later modification
-        $remotesList = $this->root->getElementsByTagName(self::TAG_REMOTES);
+        $remotesList = $this->root->getElementsByTagName(self::TAG_REFERENCES);
         if ($remotesList->length == 0) {
-            $this->remotes = $this->xml->createElement(self::TAG_REMOTES);
+            $this->remotes = $this->xml->createElement(self::TAG_REFERENCES);
             $this->remotes->setAttribute(self::ATTRIBUTE_COUNT, 0);
             $this->root->appendChild($this->remotes);
 

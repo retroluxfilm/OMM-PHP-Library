@@ -38,7 +38,8 @@ class Package
     /**
      * Package descriptor file
      */
-    private const PACKAGE_DESCRIPTOR_FILE = "package.omp";
+    private const PACKAGE_DESCRIPTOR_FILE_LEAGACY = "package.omp";
+    private const PACKAGE_DESCRIPTOR_FILE = "modpack.xml";
 
     private PackageXML $packageXML;
     protected string $packageArchiveFile;
@@ -92,7 +93,7 @@ class Package
         $xml->preserveWhiteSpace = false;
 
         //create remote root element
-        $remote = $xml->createElement(RemotePackageDescriptor::TAG_REMOTE);
+        $remote = $xml->createElement(RemotePackageDescriptor::TAG_MOD);
         $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_IDENT, $this->packageXML->getIdentifier());
         $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_FILE, $this->packageArchiveFile);
         $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_BYTES, $this->packageByteSize);
@@ -119,7 +120,7 @@ class Package
             // Crop & Resize logo to max 128x128 pixels in size
             $thumbnail = PackageHelper::createThumbnail($this->logoImageData);
 
-            $picture = $xml->createElement(RemotePackageDescriptor::TAG_PICTURE, PackageHelper::encodePackageLogo($thumbnail));
+            $picture = $xml->createElement(RemotePackageDescriptor::TAG_MOD_PICTURE, PackageHelper::encodePackageLogo($thumbnail));
             $remote->appendChild($picture);
          }
 
@@ -170,9 +171,14 @@ class Package
         // read package descriptor contents
         $packageDescriptorData = $packageZip->getFromName(self::PACKAGE_DESCRIPTOR_FILE);
         if ($packageDescriptorData === false) {
-            throw new Exception(
-                "OMM Package Descriptor (" . self::PACKAGE_DESCRIPTOR_FILE . ") not found or invalid in" . $packageArchiveFilePath
-            );
+
+            // read package descriptor contents (Legacy Mod package below OMM 1.2.x)
+            $packageDescriptorData = $packageZip->getFromName(self::PACKAGE_DESCRIPTOR_FILE_LEAGACY);
+            if ($packageDescriptorData === false) {
+                throw new Exception(
+                    "OMM Package Descriptor (" . self::PACKAGE_DESCRIPTOR_FILE_LEAGACY . " or " . self::PACKAGE_DESCRIPTOR_FILE .") not found or invalid in" . $packageArchiveFilePath
+                );
+            }
         }
 
         // load package XML from the descriptor file
