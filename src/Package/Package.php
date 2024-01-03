@@ -38,7 +38,8 @@ class Package
     /**
      * Package descriptor file
      */
-    private const PACKAGE_DESCRIPTOR_FILE = "package.omp";
+    private const PACKAGE_DESCRIPTOR_FILE_LEAGACY = "package.omp";
+    private const PACKAGE_DESCRIPTOR_FILE = "modpack.xml";
 
     private PackageXML $packageXML;
     protected string $packageArchiveFile;
@@ -170,9 +171,14 @@ class Package
         // read package descriptor contents
         $packageDescriptorData = $packageZip->getFromName(self::PACKAGE_DESCRIPTOR_FILE);
         if ($packageDescriptorData === false) {
-            throw new Exception(
-                "OMM Package Descriptor (" . self::PACKAGE_DESCRIPTOR_FILE . ") not found or invalid in" . $packageArchiveFilePath
-            );
+
+            // read package descriptor contents (Legacy Mod package below OMM 1.2.x)
+            $packageDescriptorData = $packageZip->getFromName(self::PACKAGE_DESCRIPTOR_FILE_LEAGACY);
+            if ($packageDescriptorData === false) {
+                throw new Exception(
+                    "OMM Package Descriptor (" . self::PACKAGE_DESCRIPTOR_FILE_LEAGACY . " or " . self::PACKAGE_DESCRIPTOR_FILE .") not found or invalid in" . $packageArchiveFilePath
+                );
+            }
         }
 
         // load package XML from the descriptor file
