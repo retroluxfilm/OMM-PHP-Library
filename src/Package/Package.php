@@ -92,7 +92,7 @@ class Package
         $xml->preserveWhiteSpace = false;
 
         //create remote root element
-        $remote = $xml->createElement(RemotePackageDescriptor::TAG_REMOTE);
+        $remote = $xml->createElement(RemotePackageDescriptor::TAG_MOD);
         $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_IDENT, $this->packageXML->getIdentifier());
         $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_FILE, $this->packageArchiveFile);
         $remote->setAttribute(RemotePackageDescriptor::ATTRIBUTE_BYTES, $this->packageByteSize);
@@ -119,7 +119,7 @@ class Package
             // Crop & Resize logo to max 128x128 pixels in size
             $thumbnail = PackageHelper::createThumbnail($this->logoImageData);
 
-            $picture = $xml->createElement(RemotePackageDescriptor::TAG_PICTURE, PackageHelper::encodePackageLogo($thumbnail));
+            $picture = $xml->createElement(RemotePackageDescriptor::TAG_MOD_PICTURE, PackageHelper::encodePackageLogo($thumbnail));
             $remote->appendChild($picture);
          }
 
