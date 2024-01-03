@@ -228,8 +228,9 @@ class GenerateFolderRepositoryTask extends Task
             }
             else
             {
-                // skip non zip archives
-                if (strcasecmp("zip", pathinfo($fileEntry, PATHINFO_EXTENSION)) != 0) {
+                // skip non zip archives or ozd archives
+                if (strcasecmp("zip", pathinfo($fileEntry, PATHINFO_EXTENSION)) != 0
+                  && strcasecmp("ozd", pathinfo($fileEntry, PATHINFO_EXTENSION)) != 0) {
                     continue;
                 }
 
