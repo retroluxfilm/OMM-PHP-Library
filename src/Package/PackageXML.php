@@ -94,6 +94,17 @@ class PackageXML
     }
 
     /**
+     * Get package logo
+     * @return string
+     */
+    public function getThumbnailData(): string
+    {
+        //return thumbnail data from the package
+        return (string) $this->xml->thumbnail;
+    }
+
+
+    /**
      * Get category of the package
      * @return string
      */

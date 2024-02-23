@@ -45,6 +45,7 @@ class Package
     protected string $packageArchiveFile;
     protected string $packageArchiveFilePath;
     protected string $logoImageData;
+    protected string $thumbnailData;
     protected int $packageByteSize;
     protected string $customURL;
 
@@ -115,12 +116,19 @@ class Package
         }
 
         // add logo image if set
-        if (isset($this->logoImageData)) {
+        if (isset($this->logoImageData) || isset($this->thumbnailData)) {
 
-            // Crop & Resize logo to max 128x128 pixels in size
-            $thumbnail = PackageHelper::createThumbnail($this->logoImageData);
+            if(isset($this->thumbnailData)) {
+                // directly pass image data that was already encoded internally in OMM
+                $thumbnail = $this->thumbnailData;
+            } else {
+                // Crop & Resize logo to max 128x128 pixels in size
+                // NOTE: This is for legacy mods created before OMM 1.2.x
+                $thumbnail = PackageHelper::createThumbnail($this->logoImageData);
+                $thumbnail = PackageHelper::encodePackageLogo($thumbnail);
+            }
 
-            $picture = $xml->createElement(RemotePackageDescriptor::TAG_MOD_PICTURE, PackageHelper::encodePackageLogo($thumbnail));
+            $picture = $xml->createElement(RemotePackageDescriptor::TAG_MOD_PICTURE, $thumbnail);
             $remote->appendChild($picture);
          }
 
@@ -194,6 +202,9 @@ class Package
                 );
             }
         }
+
+        // load data from thumbnail tag
+        $this->thumbnailData = $this->packageXML->getThumbnailData();
 
         // closes package zip after reading out all required information
         $packageZip->close();
