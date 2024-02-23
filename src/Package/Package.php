@@ -116,9 +116,9 @@ class Package
         }
 
         // add logo image if set
-        if (isset($this->logoImageData) || isset($this->thumbnailData)) {
+        if ( (isset($this->logoImageData) &&  $this->logoImageData !== '') || (isset($this->thumbnailData) && $this->thumbnailData !== ''  )) {
 
-            if(isset($this->thumbnailData)) {
+            if(isset($this->thumbnailData) && $this->thumbnailData !== '' ) {
                 // directly pass image data that was already encoded internally in OMM
                 $thumbnail = $this->thumbnailData;
             } else {
