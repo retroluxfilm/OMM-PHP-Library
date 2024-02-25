@@ -113,8 +113,8 @@ class OMMTask
     {
 
         // fetch package name directly from composer.json the library uses
-        $composerConfig = file_get_contents(".\.\composer.json");
-        if(isset($composerConfig)){
+        $composerConfig = file_get_contents("././composer.json");
+        if($composerConfig != false){
             $composerJson = json_decode($composerConfig);
             if($composerJson != NULL) {
                 $packageName = $composerJson->name;
