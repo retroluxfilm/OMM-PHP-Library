@@ -30,6 +30,7 @@
     "ext-mbstring": "*",
     "ext-zip": "*",
     "ext-zlib": "*",
-    "ext-imagick": "*"
+    "ext-imagick": "*",
+    "ext-json": "*"
   }
 }

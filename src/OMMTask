@@ -38,6 +38,7 @@ OMMTask::commandLineInterface($argv);
  * ---------------------------------------------------------------------------------------------
  */
 
+use Composer\InstalledVersions;
 use Exception;
 use OMM\Task\GenerateFolderRepositoryTask;
 
@@ -110,6 +111,18 @@ class OMMTask
      */
     public static function getVersion()
     {
-       return "retrolux/omm-php-library " .\Composer\InstalledVersions::getPrettyVersion('retrolux/omm-php-library');
+
+        // fetch package name directly from composer.json the library uses
+        $composerConfig = file_get_contents("composer.json");
+        if(isset($composerConfig)){
+            $composerJson = json_decode($composerConfig);
+            if($composerJson != NULL) {
+                $packageName = $composerJson->name;
+                return $packageName . " " . InstalledVersions::getPrettyVersion($packageName) . " " . InstalledVersions::getReference($packageName);
+            }
+        }
+
+        return -1;
+
     }
 }
