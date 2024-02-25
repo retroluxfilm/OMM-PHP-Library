@@ -22,6 +22,7 @@
 namespace OMM\Task;
 
 use Exception;
+use OMM\OMMTask;
 use OMM\Package\Package;
 use OMM\Repository\RemotePackageDescriptor;
 use OMM\Repository\RemoteRepositoryXML;

@@ -30,6 +30,7 @@ if (isset($_composer_autoload_path)) {
     require_once __DIR__ . '/../vendor/autoload.php';
 }
 
+
 // call commandline task function
 OMMTask::commandLineInterface($argv);
 
@@ -66,7 +67,8 @@ class OMMTask
 
     protected static function showHelp(): void
     {
-        echo "Command line task for the OMM web repository generator. Type only the command to get additional help\n\n";
+        echo "Command line task for the OMM web repository generator. Type only the command to get additional help\n";
+        echo "Version:" . self::getVersion() . "\n\n";
         echo "Usage:\n";
         echo " OMMTask <command> <args>\n\n";
         echo "Commands:\n";
@@ -100,5 +102,14 @@ class OMMTask
         } catch (Exception $exception) {
             error_log("Error on Task: " . $exception->getMessage());
         }
+    }
+
+    /**
+     * Returns the currently installed version of this library through composer
+     * @return string
+     */
+    public static function getVersion()
+    {
+       return "retrolux/omm-php-library " .\Composer\InstalledVersions::getPrettyVersion('retrolux/omm-php-library');
     }
 }

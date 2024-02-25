@@ -25,6 +25,7 @@ use DOMDocument;
 use DOMElement;
 use DOMNode;
 use Exception;
+use OMM\OMMTask;
 use OMM\Package\Package;
 
 /**
@@ -46,7 +47,8 @@ class RemoteRepositoryXML
     /**
      * Attributes of the remote repository xml
      */
-    private const ATTRIBUTE_COUNT = "count";
+    private const ATTRIBUTE_COUNT = "count",
+                  ATTRIBUTE_CREATOR = "creator";
 
     private DOMDocument $xml;
     private DOMElement $root;
@@ -75,7 +77,7 @@ class RemoteRepositoryXML
     }
 
     /**
-     * Initializes the remote repository document. Reuses existing or creates a new one when not present.
+     * Initializes the remote repository document. Reuses existing if valid or creates a new one when not present.
      * @param string $repositoryFileName
      * @throws Exception
      */
@@ -86,12 +88,15 @@ class RemoteRepositoryXML
         $this->xml->formatOutput = true;
         $this->xml->preserveWhiteSpace = false;
 
-        // load existing repository XML
+        /**
+         * Load existing repository XML
+         */
         if (file_exists($repositoryFileName)) {
             // load xml file
             if (!$this->xml->load($repositoryFileName)) {
                 throw new Exception("Could not load repository xml '" . $repositoryFileName . "' file.");
             }
+
             // fetch root node
             $this->root = $this->xml->documentElement;
 
@@ -99,15 +104,33 @@ class RemoteRepositoryXML
             if ($this->root == null || $this->root->nodeName != self::TAG_OMM_REPOSITORY) {
                 throw new Exception("Existing XML '". $repositoryFileName . "' is not a valid remote repository file.");
             }
-        } else {
-            // create new repository xml
-            $this->xml->xmlVersion = "1.0";
-            //$this->xml->encoding = "utf-8";
 
-            // create the root element
-            $this->root = $this->xml->createElement(self::TAG_OMM_REPOSITORY);
-            $this->xml->appendChild($this->root);
+            // check version of the repository creator and reuse xml if they match
+            if(strcmp($this->root->getAttribute(self::ATTRIBUTE_CREATOR),OMMTask::getVersion()) == 0) {
+                // reuse existing XML as it seems valid
+                return;
+            } else {
+                // clear contents fom existing xml to start fresh
+                $this->xml->removeChild($this->root);
+            }
+
         }
+
+
+        /**
+         * Create new repository xml
+         */
+
+        $this->xml->xmlVersion = "1.0";
+        //$this->xml->encoding = "utf-8";
+
+        // create the root element
+        $this->root = $this->xml->createElement(self::TAG_OMM_REPOSITORY);
+        // add information about the repository XML creator
+        $this->root->setAttribute(self::ATTRIBUTE_CREATOR, OMMTask::getVersion() );
+        $this->xml->appendChild($this->root);
+
+
     }
 
     /**
