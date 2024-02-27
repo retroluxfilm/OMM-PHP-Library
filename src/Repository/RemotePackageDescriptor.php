@@ -35,7 +35,7 @@ class RemotePackageDescriptor
      */
     public const
         TAG_MOD = "mod",
-        TAG_MOD_PICTURE = "picture",
+        TAG_MOD_PICTURE = "thumbnail",
         TAG_DESCRIPTION = "description",
         TAG_URL = "url";
     /**
