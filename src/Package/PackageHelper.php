@@ -83,7 +83,7 @@ class PackageHelper
         $descriptionText = self::convertLineEndings($descriptionText);
 
         //utf8 encode text
-        $descriptionText = utf8_encode($descriptionText);
+        $descriptionText = mb_convert_encoding($descriptionText,'utf8');
 
         // fetch byte length of the uncompressed utf8 text
         $byteSize = mb_strlen($descriptionText, '8bit') + 1; // +1 to add final null char in length
