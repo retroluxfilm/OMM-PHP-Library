@@ -58,8 +58,7 @@ class RemoteRepositoryXML
 
     private string $repositoryFileName;
     private string $repositoryRootPath;
-
-
+ 
     /**
      * Creates the remote repository xml
      * @throws Exception
@@ -295,8 +294,6 @@ class RemoteRepositoryXML
      */
     protected function prefillRemotePackagesList(): void
     {
-        $this->remotePackageDescriptorList = array();
-
         //read in all remote packages
         if ($this->remotes->hasChildNodes()) {
             /* @var $childNode DOMElement */
